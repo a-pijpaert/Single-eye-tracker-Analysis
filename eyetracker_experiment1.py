@@ -548,7 +548,15 @@ if check_normality_flag:
 
 #%% 
 # calculate MAE for vergence and show in figure with error bars
-
+vergence_data = data_no_outliers[data_no_outliers['viewing'] == 'binocular']
+mae_vergence = vergence_data.groupby(['stimulus ID'])[['ae vergence', 
+                                                       'stimulus position x', 
+                                                       'stimulus position y']].mean()
+vergence_data_central = data_no_outliers_central[data_no_outliers_central['viewing'] == 'binocular']
+mae_vergence_central = vergence_data_central.groupby(['stimulus ID'])[['ae vergence', 
+                                                       'stimulus position x', 
+                                                       'stimulus position y']].mean()
+               
 figure1 = plt.figure(figsize=(10, 6))
 sns.scatterplot(x='stimulus position x',
                 y='stimulus position y',
@@ -556,5 +564,16 @@ sns.scatterplot(x='stimulus position x',
                 color='black',
                 s=50,
                 figure=figure1)
+# Add error bars using Matplotlib
+plt.errorbar(x=mae_vergence['stimulus position x'], 
+             y=mae_vergence['stimulus position y'], 
+             yerr=mae_vergence['ae vergence'], 
+             fmt='o', color='blue', 
+             alpha=0.5, capsize=5, capthick=2, elinewidth=2)
 
+plt.xlabel('Vertical stimulus position ($^\circ$)')
+plt.ylabel('Horizontal stimulus position ($^\circ$)')
 plt.show()
+
+vergence_summary = mae_vergence['ae vergence'].agg(['mean', 'std']).reset_index()
+vergence_summary_central = mae_vergence_central['ae vergence'].agg(['mean', 'std']).reset_index()
