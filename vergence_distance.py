@@ -1,6 +1,7 @@
 #%%
 import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
 import statsmodels.formula.api as smf
 import seaborn as sns
 # %matplotlib qt
@@ -160,8 +161,8 @@ subjects = data['subject_id'].unique()
 
 # Plotting the data
 plt.figure(figsize=(10, 6))
-# sns.scatterplot(x='target_vergence', y='measured_vergence', hue='subject_id', data=data, palette='tab10')
-# Plot each subject with a unique marker and color
+
+# scatter plt each subject with a unique marker and color
 sns.scatterplot(x='target_vergence',
 y='measured_vergence',
 data=data,
@@ -189,34 +190,22 @@ random_effects = [
 
 for random_intercept in random_effects:
     y_vals = (intercept + random_intercept) + slope * x_vals
-    plt.plot(x_vals, y_vals)
-
-# from python:
-# # Extract random effects
-# random_effects = result.random_effects
-# # print(random_effects)
-
-# # Plot regression lines for each subject
-# for subject in subjects:
-#     # Get the random intercept for this subject
-#     random_intercept = random_effects[subject]['Group']
-#     # Compute the predicted y values for this subject
-#     y_vals = (intercept + random_intercept) + slope * x_vals
-#     plt.plot(x_vals, y_vals)
+    plt.plot(x_vals, y_vals, zorder=0)
 
 # Compute the predicted y values
 y_vals = intercept + slope * x_vals
 
-plt.plot(x_vals, y_vals, color='black', label='Regression')
-
+plt.plot(x_vals, y_vals, color='black', label='Regression', zorder=0)
 
 # Plotting the identity line (y = x)
-plt.plot(x_vals, x_vals, color='gray', linestyle='--', label='Identity')
+plt.plot(x_vals, x_vals, color='gray', linestyle='--', label='Identity', zorder=0)
+
 
 # Customizing the plot
-plt.title('Measured Vergence vs. Target Vergence')
+rcParams.update({'font.size': 16})
 plt.xlabel(u'Target Vergence (\N{DEGREE SIGN})')
 plt.ylabel(u'Measured Vergence (\N{DEGREE SIGN})')
-plt.legend()
+plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+plt.tight_layout()
 plt.show()
 # %%

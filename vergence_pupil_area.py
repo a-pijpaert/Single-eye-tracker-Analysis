@@ -2,6 +2,7 @@
 import os
 import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
 import seaborn as sns
 from scipy.stats import pearsonr, spearmanr, chi2
 import statsmodels.formula.api as smf
@@ -108,18 +109,18 @@ random_intercepts = [
 ]
 for random_intercept, random_slope in zip(random_intercepts, random_slopes):
     y_vals = (intercept + random_intercept) + (slope + random_slope) * x_vals
-    plt.plot(x_vals, y_vals)
+    plt.plot(x_vals, y_vals, zorder=0)
 
 # Compute the predicted y values
 y_vals = intercept + slope * x_vals
 
-plt.plot(x_vals, y_vals, color='black', label='Regression')
+plt.plot(x_vals, y_vals, color='black', label='Regression', zorder=0)
 
 
 
 # Customizing the plot
-plt.title('Measured Vergence vs. Average Pupil Area')
+rcParams.update({'font.size': 16})
 plt.xlabel(u'Average Pupil Area (pixels)')
-plt.ylabel(u'Measured Vergence (\N{DEGREE SIGN})')
-plt.legend()
+plt.ylabel(r'$ \alpha_{measured} (\degree)$')
+plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
 plt.show()

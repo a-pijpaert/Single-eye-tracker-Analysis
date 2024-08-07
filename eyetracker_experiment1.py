@@ -52,6 +52,7 @@ ae_x = np.array([])
 ae_y = np.array([])
 vae = np.array([]) # Vecotrial amplitude, in oculomotor literatuur wordt dit vaak R genoemd
 ae_vergences = np.array([])
+sigma_xy = np.array([])
 
 for procedure in procedures:
     stimulus_numbers = np.linspace(1,35,35)
@@ -84,7 +85,7 @@ for procedure in procedures:
                 mean_pog_deg = np.nanmean(pog_degrees[stimulus_indices,:2], axis=0)
                 # precision_SD = np.nanstd(pog_degrees[stimulus_indices,:2], axis=0)
                 # precision_R_SD = calculate_sd_2d_array(pog_degrees[stimulus_indices,:2])
-                bcea, sigma_x, sigma_y = calculate_bcea(pog_degrees[stimulus_indices,:2])
+                bcea, sigma_x, sigma_y, sigma_xy_ = calculate_bcea(pog_degrees[stimulus_indices,:2])
                 precision_S2S = calculate_rms_s2s(pog_degrees[stimulus_indices,:2])
                 stim_pos_deg = stim_degrees[stimulus_indices[0]]
                 outlier = is_outlier[stimulus_indices[0]]
@@ -132,6 +133,7 @@ for procedure in procedures:
                     viewing = np.append(viewing, f'{ocular}')
                     eye_id = np.append(eye_id, f'{eye}')
                     ae_vergences = np.append(ae_vergences, ae_vergence)
+                    sigma_xy = np.append(sigma_xy, sigma_xy_)
 
 data = pd.DataFrame({
     'subject ID': subject_ids,
@@ -153,7 +155,8 @@ data = pd.DataFrame({
     'outlier': outliers,
     'viewing': viewing,
     'eye': eye_id,
-    'ae vergence': ae_vergences
+    'ae vergence': ae_vergences,
+    'sigma xy': sigma_xy
 })
 
 data_single_subject = data[data['subject ID'] == 's003']
@@ -393,6 +396,11 @@ axs3[0].set_xlabel('')
 axs3[0].set_ylabel('')
 axs3[0].legend_.remove()
 
+# Create a secondary y-axis on the right
+ax3_0 = axs3[0].twinx()
+ax3_0.set_ylim([0, 1**2])
+ax3_0.set_ylabel('')
+
 sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject_central,
             ax=axs3[1], showfliers=False)
 sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject_central, 
@@ -401,6 +409,11 @@ sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melte
 axs3[1].set_ylim([0, 1])
 axs3[1].set_xlabel('')
 axs3[1].set_ylabel('')
+
+# Create a secondary y-axis on the right
+ax3_1 = axs3[1].twinx()
+ax3_1.set_ylim([0, 1**2])
+ax3_1.set_ylabel('Precision ($^\circ$²)', fontsize=12)
 
 # Simplify legend by removing the word "viewing"
 handles, labels = axs3[1].get_legend_handles_labels()

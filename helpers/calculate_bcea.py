@@ -45,7 +45,7 @@ def calculate_bcea(data: np.ndarray, k: float = 1.14) -> float:
     
     if n == 0:
         warnings.warn("No valid data points available after removing NaNs", UserWarning)
-        return np.nan, np.nan, np.nan
+        return np.nan, np.nan, np.nan, np.nan
     
     # Standard deviations
     sigma_x = np.std(x_coords, ddof=1)
@@ -54,12 +54,12 @@ def calculate_bcea(data: np.ndarray, k: float = 1.14) -> float:
     # Covariance
     covariance = np.cov(x_coords, y_coords, ddof=1)
     sigma_xy = covariance[0, 1]
-    
+
     # Correlation coefficient
     rho = sigma_xy / (sigma_x * sigma_y)
     
     # BCEA calculation
     bcea = 2 * k * np.pi * sigma_x * sigma_y * np.sqrt(1 - rho**2)
     
-    return bcea, sigma_x, sigma_y
+    return bcea, sigma_x, sigma_y, rho
 
