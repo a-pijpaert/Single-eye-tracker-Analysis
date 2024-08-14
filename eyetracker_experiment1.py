@@ -1,6 +1,7 @@
 #%%
 import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
 import seaborn as sns
 import scipy.stats as stats
 # %matplotlib qt
@@ -13,6 +14,8 @@ from helpers.check_normality import check_normality
 from helpers.vergence_target import vergence_target
 from helpers.convert_degrees_2_mm import convert_degrees_2_mm
 
+from __plot_params import *
+
 # set subject IDs
 subject_IDs = ['s001',
                's003',
@@ -20,6 +23,11 @@ subject_IDs = ['s001',
                's005',
                's006',
                's007',]
+
+# set figure context
+# rcParams.update({'font.size': 16})
+# sns.set_context("paper", rc={"scatter.marker": 30})  # Change marker size globally
+plt.rcParams['font.size'] = font_size
 
 # set parameters
 procedures = [RecordingState.MEASUREMENT.name,
@@ -59,14 +67,13 @@ for procedure in procedures:
 
     if procedure == RecordingState.MEASUREMENT.name:
         eyes = ['left', 'right']
-        ocular = 'binocular'
-        print('kom ik hier')
+        ocular = 'Binocular'
     if procedure == RecordingState.MEASUREMENT_LEFT.name:
         eyes = ['left']
-        ocular = 'monocular'
+        ocular = 'Monocular'
     if procedure == RecordingState.MEASUREMENT_RIGHT.name:
         eyes = ['right']
-        ocular = 'monocular'
+        ocular = 'Monocular'
 
     for eye in eyes:
         print(f'{eye}_pog_degrees | {procedure} | {eyes}')
@@ -162,7 +169,7 @@ data = pd.DataFrame({
 data_single_subject = data[data['subject ID'] == 's003']
 data_stimuli = data_single_subject[data_single_subject['procedure'] == 'MEASUREMENT_RIGHT']
 data_no_outliers = data[data['outlier'] == 0]
-data_no_outliers_central = data_no_outliers[data_no_outliers['stimulus position x'].between(-15, 15)]
+data_no_outliers_central = data_no_outliers[data_no_outliers['stimulus position x'].between(-10, 10)]
 
 mae_subject = data_no_outliers.groupby(['subject ID', 'viewing', 'eye'])[['ae x', 'ae y', 'R']].mean().reset_index()
 mae_subject_central = data_no_outliers_central.groupby(['subject ID', 'viewing', 'eye'])[['ae x', 'ae y', 'R']].mean().reset_index()
@@ -176,23 +183,28 @@ s2s_subject_central = data_no_outliers_central.groupby(['subject ID', 'viewing',
 
 #%%
 # Scatter plot of a single subject
-figure1 = plt.figure(figsize=(10, 6))
-sns.scatterplot(x='stimulus position x',
-                y='stimulus position y',
-                data=data_stimuli,
-                color='black',
-                s=50,
-                figure=figure1)
+figure1 = plt.figure(figsize=figure_size)
 sns.scatterplot(x='pog x',
                 y='pog y',
                 data=data_single_subject,
                 hue='viewing',
                 style='viewing',
-                figure=figure1)
+                figure=figure1,
+                s=sns_marker_size,)
+sns.scatterplot(x='stimulus position x',
+                y='stimulus position y',
+                data=data_stimuli,
+                color='black',
+                marker='+',
+                linewidth=2,
+                figure=figure1,
+                s=sns_marker_size,
+                label='Target',
+                zorder=0)
 
 axis1 = figure1.axes[0]
 axis1.set_xlim([-30,30])
-axis1.set_ylim([-20,20])
+axis1.set_ylim([-21,21])
 
 axis1.set_ylabel('Vertical POG ($^\circ$)')
 axis1.set_xlabel('Horizontal POG ($^\circ$)')
@@ -205,29 +217,21 @@ plt.savefig(f'{figures_dir}/single subject pog estimates.png', bbox_inches='tigh
 
 #%%
 # horizontal pog vs target 
-figure2, axs2 = plt.subplots(1,2, figsize=(10,6))
+figure2, axs2 = plt.subplots(figsize=(10,6))
 
 # draw identity lines
-axs2[0].axline((0,0), slope=1, color='gray', zorder=0)
-axs2[1].axline((0,0), slope=1, color='gray', zorder=0)
+axs2.axline((0,0), slope=1, color='gray', zorder=0)
 
-sns.scatterplot(data=data_no_outliers[data_no_outliers['viewing'] == 'monocular'], 
+sns.scatterplot(data=data_no_outliers, 
                 x='stimulus position x', y='pog x',
                 hue='subject ID', style='subject ID', 
-                s=100, ax=axs2[0])
-sns.scatterplot(data=data_no_outliers[data_no_outliers['viewing'] == 'binocular'], 
-                x='stimulus position x', y='pog x',
-                hue='subject ID', style='subject ID', 
-                s=100, ax=axs2[1])
+                s=sns_marker_size, ax=axs2)
 
 
-axs2[0].legend_.remove()
-axs2[0].set_xlabel('Horizontal Stimulus Position ($^\circ$)')
-axs2[0].set_ylabel('Horizontal POG ($^\circ$)')
+axs2.legend_.remove()
+axs2.set_xlabel('Horizontal Stimulus Position ($^\circ$)')
+axs2.set_ylabel('Horizontal Gaze Angles ($^\circ$)')
 
-axs2[1].legend_.remove()
-axs2[1].set_xlabel('Horizontal Stimulus Position ($^\circ$)')
-axs2[1].set_ylabel('')
 
 # Defining custom 'xlim' and 'ylim' values.
 custom_xlim = (-24, 24)
@@ -236,9 +240,9 @@ custom_ylim = (-35, 35)
 # Setting the values for all axes.
 plt.setp(axs2, xlim=custom_xlim, ylim=custom_ylim)
 
-handles, labels = axs2[1].get_legend_handles_labels()
+handles, labels = axs2.get_legend_handles_labels()
 new_labels = [label.replace('subject ID', '').strip() for label in labels]
-axs2[1].legend(handles, new_labels, title='', loc='upper left', bbox_to_anchor=(1, 1))
+axs2.legend(handles, new_labels, title='', loc='upper left', bbox_to_anchor=(1, 1))
 
 plt.savefig(f'{figures_dir}/horizontal pog estimates vs target.png', bbox_inches='tight')
 
@@ -250,18 +254,18 @@ figure3, axs3 = plt.subplots(1,2, figsize=(10,6))
 axs3[0].axline((0,0), slope=1, color='gray', zorder=0)
 axs3[1].axline((0,0), slope=1, color='gray', zorder=0)
 
-sns.scatterplot(data=data_no_outliers[data_no_outliers['viewing'] == 'monocular'], 
+sns.scatterplot(data=data_no_outliers, 
                 x='stimulus position y', y='pog y',
                 hue='subject ID', style='subject ID', 
-                s=100, ax=axs3[0])
-sns.scatterplot(data=data_no_outliers[data_no_outliers['viewing'] == 'binocular'], 
+                s=sns_marker_size, ax=axs3[0])
+sns.scatterplot(data=data_no_outliers_central, 
                 x='stimulus position y', y='pog y',
                 hue='subject ID', style='subject ID', 
-                s=100, ax=axs3[1])
+                s=sns_marker_size, ax=axs3[1])
 
 axs3[0].legend_.remove()
 axs3[0].set_xlabel('Vertical Stimulus Position ($^\circ$)')
-axs3[0].set_ylabel('Vertical POG ($^\circ$)')
+axs3[0].set_ylabel('Vertical Gaze Angles ($^\circ$)')
 
 axs3[1].legend_.remove()
 axs3[1].set_xlabel('Vertical Stimulus Position ($^\circ$)')
@@ -278,6 +282,11 @@ handles, labels = axs3[1].get_legend_handles_labels()
 new_labels = [label.replace('subject ID', '').strip() for label in labels]
 axs3[1].legend(handles, new_labels, title='', loc='upper left', bbox_to_anchor=(1, 1))
 
+axs3[0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+
+
+
 plt.savefig(f'{figures_dir}/vertical pog estimates vs target.png', bbox_inches='tight')
 
 #%%
@@ -291,7 +300,7 @@ melted_mae_subject_central = mae_subject_central.melt(id_vars=['subject ID', 'vi
                     var_name='ae type', value_name='ae value')
 melted_mae_subject_central['ae type'] = melted_mae_subject_central['ae type'].replace({'ae x': 'x',
                                                                        'ae y': 'y'})
-# MAE per monocular and binocular with both eye together
+# MAE per Monocular and Binocular with both eye together
 figure4, axs4 = plt.subplots(1,2, figsize=(12, 6))
 sns.boxplot(x='ae type', y='ae value', hue='viewing', data=melted_mae_subject,
             ax=axs4[0], showfliers=False)
@@ -324,6 +333,10 @@ figure4.align_ylabels()
 # Set a shared y-label
 figure4.text(0.04, 0.5, 'MAE ($^\circ$)', va='center', rotation='vertical', fontsize=12)
 
+axs4[0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs4[1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+
+
 plt.show()
 
 figure4.savefig(f'{figures_dir}/MAE boxplot.png', bbox_inches='tight')
@@ -337,10 +350,10 @@ print('')
 print('Central points:')
 print(mae_summary_cenrtal)
 
-# t-tests to test difference between monocular and binocular viewing
+# t-tests to test difference between Monocular and Binocular viewing
 # Separate data by viewing condition
-binocular_data = mae_subject[mae_subject['viewing'] == 'binocular']
-monocular_data = mae_subject[mae_subject['viewing'] == 'monocular']
+binocular_data = mae_subject_central[mae_subject_central['viewing'] == 'Binocular']
+monocular_data = mae_subject_central[mae_subject_central['viewing'] == 'Monocular']
 
 # Variables to test
 variables = ['ae x', 'ae y', 'R']
@@ -361,10 +374,10 @@ for var in variables:
     print()
 
 if check_normality_flag:
-    check_normality(mae_subject[mae_subject['viewing'] == 'monocular']['ae x'])
-    check_normality(mae_subject[mae_subject['viewing'] == 'monocular']['ae y'])
-    check_normality(mae_subject[mae_subject['viewing'] == 'binocular']['ae x'])
-    check_normality(mae_subject[mae_subject['viewing'] == 'binocular']['ae y'])
+    check_normality(mae_subject[mae_subject['viewing'] == 'Monocular']['ae x'])
+    check_normality(mae_subject[mae_subject['viewing'] == 'Monocular']['ae y'])
+    check_normality(mae_subject[mae_subject['viewing'] == 'Binocular']['ae x'])
+    check_normality(mae_subject[mae_subject['viewing'] == 'Binocular']['ae y'])
 
 
 #%%
@@ -382,8 +395,8 @@ melted_sd_subject_central = sd_subject_central.melt(id_vars=['subject ID', 'view
 melted_sd_subject_central['precision type'] = melted_sd_subject_central['precision type'].replace({'precision x SD': 'SD x',
                                                                        'precision y SD': 'SD y',
                                                                        'precision R SD': 'BCEA'})
-# precision per monocular and binocular with both eye together
-figure3, axs3 = plt.subplots(1,2, figsize=(12, 6))
+# precision per Monocular and Binocular with both eye together
+figure3, axs3 = plt.subplots(1,2, figsize=figure_size)
 sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject,
             ax=axs3[0], showfliers=False)
 sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject, 
@@ -397,23 +410,25 @@ axs3[0].set_ylabel('')
 axs3[0].legend_.remove()
 
 # Create a secondary y-axis on the right
-ax3_0 = axs3[0].twinx()
-ax3_0.set_ylim([0, 1**2])
-ax3_0.set_ylabel('')
+# ax3_0 = axs3[0].twinx()
+# ax3_0.set_ylim([0, 1**2])
+# ax3_0.set_ylabel('')
 
 sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject_central,
             ax=axs3[1], showfliers=False)
 sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject_central, 
               dodge=True, alpha=0.7, ax=axs3[1], size=10, 
               edgecolor='white', linewidth=2, legend=False)
-axs3[1].set_ylim([0, 1])
+# axs3[1].set_ylim([0, 1])
 axs3[1].set_xlabel('')
 axs3[1].set_ylabel('')
+axs3[1].get_yaxis().set_visible(False)
+
 
 # Create a secondary y-axis on the right
 ax3_1 = axs3[1].twinx()
 ax3_1.set_ylim([0, 1**2])
-ax3_1.set_ylabel('Precision ($^\circ$²)', fontsize=12)
+ax3_1.set_ylabel('Precision ($^\circ$²)', fontsize=font_size)
 
 # Simplify legend by removing the word "viewing"
 handles, labels = axs3[1].get_legend_handles_labels()
@@ -423,14 +438,17 @@ axs3[1].legend(handles, new_labels, title='', loc='upper left', bbox_to_anchor=(
 figure3.align_ylabels()
 
 # Set a shared y-label
-figure3.text(0.04, 0.5, 'Precision ($^\circ$)', va='center', rotation='vertical', fontsize=12)
+figure3.text(0.04, 0.5, 'Precision ($^\circ$)', va='center', rotation='vertical', fontsize=font_size)
+
+axs3[0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
 
 plt.show()
 
 figure3.savefig(f'{figures_dir}/SD boxplot.png', bbox_inches='tight')
 
-precision_summary = melted_sd_subject.groupby(['viewing', 'precision type'])['precision value'].agg(['mean', 'std']).reset_index().sort_values('viewing')
-precision_summary_cenrtal = melted_sd_subject_central.groupby(['viewing', 'precision type'])['precision value'].agg(['mean', 'std']).reset_index().sort_values('viewing')
+precision_summary = melted_sd_subject.groupby('precision type')['precision value'].agg(['mean', 'std']).reset_index()
+precision_summary_cenrtal = melted_sd_subject_central.groupby('precision type')['precision value'].agg(['mean', 'std']).reset_index()
 
 print('All points:')
 print(precision_summary)
@@ -438,10 +456,10 @@ print('')
 print('Central points:')
 print(precision_summary_cenrtal)
 
-# t-tests to test difference between monocular and binocular viewing
+# t-tests to test difference between Monocular and Binocular viewing
 # Separate data by viewing condition
-binocular_data = mae_subject[mae_subject['viewing'] == 'binocular']
-monocular_data = mae_subject[mae_subject['viewing'] == 'monocular']
+binocular_data = mae_subject[mae_subject['viewing'] == 'Binocular']
+monocular_data = mae_subject[mae_subject['viewing'] == 'Monocular']
 
 # Variables to test
 variables = ['ae x', 'ae y', 'R']
@@ -462,10 +480,10 @@ for var in variables:
     print()
 
 if check_normality_flag:
-    check_normality(sd_subject[sd_subject['viewing'] == 'monocular']['precision x SD'])
-    check_normality(sd_subject[sd_subject['viewing'] == 'monocular']['precision y SD'])
-    check_normality(sd_subject[sd_subject['viewing'] == 'binocular']['precision x SD'])
-    check_normality(sd_subject[sd_subject['viewing'] == 'binocular']['precision y SD'])
+    check_normality(sd_subject[sd_subject['viewing'] == 'Monocular']['precision x SD'])
+    check_normality(sd_subject[sd_subject['viewing'] == 'Monocular']['precision y SD'])
+    check_normality(sd_subject[sd_subject['viewing'] == 'Binocular']['precision x SD'])
+    check_normality(sd_subject[sd_subject['viewing'] == 'Binocular']['precision y SD'])
 
 #%%
 # precision S2S
@@ -484,7 +502,7 @@ melted_s2s_subject_central['precision type'] = melted_s2s_subject_central['preci
     'precision x S2S': 'x',
     'precision y S2S': 'y',
     'precision R S2S': 'R'})
-# precision per monocular and binocular with both eye together
+# precision per Monocular and Binocular with both eye together
 figure3, axs3 = plt.subplots(1,2, figsize=(12, 6))
 sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_s2s_subject,
             ax=axs3[0], showfliers=False)
@@ -517,12 +535,15 @@ figure3.align_ylabels()
 # Set a shared y-label
 figure3.text(0.04, 0.5, 's2s ($^\circ$)', va='center', rotation='vertical', fontsize=12)
 
+axs3[0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+
 plt.show()
 
 figure3.savefig(f'{figures_dir}/S2S boxplot.png', bbox_inches='tight')
 
-precision_summary = melted_s2s_subject.groupby(['viewing', 'precision type'])['precision value'].agg(['mean', 'std']).reset_index().sort_values('viewing')
-precision_summary_cenrtal = melted_s2s_subject_central.groupby(['viewing', 'precision type'])['precision value'].agg(['mean', 'std']).reset_index().sort_values('viewing')
+precision_summary = melted_s2s_subject.groupby('precision type')['precision value'].agg(['mean', 'std']).reset_index()
+precision_summary_cenrtal = melted_s2s_subject_central.groupby('precision type')['precision value'].agg(['mean', 'std']).reset_index()
 
 print('All points:')
 print(precision_summary)
@@ -530,10 +551,10 @@ print('')
 print('Central points:')
 print(precision_summary_cenrtal)
 
-# t-tests to test difference between monocular and binocular viewing
+# t-tests to test difference between Monocular and Binocular viewing
 # Separate data by viewing condition
-binocular_data = mae_subject[mae_subject['viewing'] == 'binocular']
-monocular_data = mae_subject[mae_subject['viewing'] == 'monocular']
+binocular_data = mae_subject[mae_subject['viewing'] == 'Binocular']
+monocular_data = mae_subject[mae_subject['viewing'] == 'Monocular']
 
 # Variables to test
 variables = ['ae x', 'ae y', 'R']
@@ -554,39 +575,76 @@ for var in variables:
     print()
 
 if check_normality_flag:
-    check_normality(s2s_subject[s2s_subject['viewing'] == 'monocular']['precision x S2S'])
-    check_normality(s2s_subject[s2s_subject['viewing'] == 'monocular']['precision y S2S'])
-    check_normality(s2s_subject[s2s_subject['viewing'] == 'binocular']['precision x S2S'])
-    check_normality(s2s_subject[s2s_subject['viewing'] == 'binocular']['precision y S2S'])
+    check_normality(s2s_subject[s2s_subject['viewing'] == 'Monocular']['precision x S2S'])
+    check_normality(s2s_subject[s2s_subject['viewing'] == 'Monocular']['precision y S2S'])
+    check_normality(s2s_subject[s2s_subject['viewing'] == 'Binocular']['precision x S2S'])
+    check_normality(s2s_subject[s2s_subject['viewing'] == 'Binocular']['precision y S2S'])
 
 #%% 
 # calculate MAE for vergence and show in figure with error bars
-vergence_data = data_no_outliers[data_no_outliers['viewing'] == 'binocular']
+vergence_data = data_no_outliers[data_no_outliers['viewing'] == 'Binocular']
 mae_vergence = vergence_data.groupby(['stimulus ID'])[['ae vergence', 
                                                        'stimulus position x', 
                                                        'stimulus position y']].mean()
-vergence_data_central = data_no_outliers_central[data_no_outliers_central['viewing'] == 'binocular']
-mae_vergence_central = vergence_data_central.groupby(['stimulus ID'])[['ae vergence', 
-                                                       'stimulus position x', 
-                                                       'stimulus position y']].mean()
-               
+
 figure1 = plt.figure(figsize=(10, 6))
 sns.scatterplot(x='stimulus position x',
                 y='stimulus position y',
                 data=data_stimuli,
                 color='black',
                 s=50,
-                figure=figure1)
+                figure=figure1,
+                zorder=3)
 # Add error bars using Matplotlib
 plt.errorbar(x=mae_vergence['stimulus position x'], 
              y=mae_vergence['stimulus position y'], 
              yerr=mae_vergence['ae vergence'], 
-             fmt='o', color='blue', 
-             alpha=0.5, capsize=5, capthick=2, elinewidth=2)
+             fmt='o', color='#4c72b0', 
+             alpha=1, capsize=5, capthick=2, elinewidth=2)
 
-plt.xlabel('Vertical stimulus position ($^\circ$)')
-plt.ylabel('Horizontal stimulus position ($^\circ$)')
+plt.xlabel('Vertical Stimulus Position ($^\circ$)')
+plt.ylabel('Horizontal Stimulus Position ($^\circ$)')
 plt.show()
 
 vergence_summary = mae_vergence['ae vergence'].agg(['mean', 'std']).reset_index()
 vergence_summary_central = mae_vergence_central['ae vergence'].agg(['mean', 'std']).reset_index()
+
+
+figure1.savefig(f'{figures_dir}/MAE vergence error bars.png', bbox_inches='tight')
+
+#%%
+# MAE per stimulus
+ae_data = data_no_outliers
+mae = ae_data.groupby(['stimulus ID'])[['ae x',
+                                        'ae y',
+                                        'stimulus position x', 
+                                        'stimulus position y']].mean()
+
+figure1 = plt.figure(figsize=(10, 6))
+# Add error bars using Matplotlib
+plt.errorbar(x=mae['stimulus position x'], 
+             y=mae['stimulus position y'], 
+             xerr=mae['ae x'],
+             fmt='o', color='#4c72b0', 
+             alpha=1, capsize=5, capthick=2, elinewidth=2,
+             label='MAE x')
+plt.errorbar(x=mae['stimulus position x'], 
+             y=mae['stimulus position y'], 
+             yerr=mae['ae y'], 
+             fmt='o', color='#dd8452', 
+             alpha=1, capsize=5, capthick=2, elinewidth=2,
+             label='MAE y')
+sns.scatterplot(x='stimulus position x',
+                y='stimulus position y',
+                data=data_stimuli,
+                color='black',
+                s=50,
+                figure=figure1,
+                zorder=3)
+plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+plt.xlabel('Horizontal Stimulus Position ($^\circ$)')
+plt.ylabel('Vertical Stimulus Position ($^\circ$)')
+plt.show()
+
+
+figure1.savefig(f'{figures_dir}/MAE error bars.png', bbox_inches='tight')

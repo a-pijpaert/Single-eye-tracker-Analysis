@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import statsmodels.formula.api as smf
 import seaborn as sns
+from __plot_params import *
 # %matplotlib qt
 
 
@@ -16,6 +17,9 @@ subject_IDs = ['s001',
                's003',
                's007',
                's008',]
+
+# set plotting params
+plt.rcParams['font.size'] = font_size
 
 # set parameters
 procedures = [RecordingState.VERGENCE_DISTANCE_3.name.lower(),
@@ -130,15 +134,10 @@ data['stimulus_distance'] = data['stimulus_distance'].astype('category')
 # plt.legend()
 # plt.show()
 # %%
-# calculate mean std for each procedure 
-print("Mean absolute error per distance")
-print(u"Distance (mm)\tMAE (\N{DEGREE SIGN})")
-for procedure, stimulus_position in zip(procedures, stimulus_positions_z):   
-    all_values = [value for values in MAEs_vergence[procedure].values() for value in values]
-    mean = np.nanmean(all_values)
-    std = np.nanstd(all_values)
-
-    print(f'{stimulus_position}\t\t{mean:.2f}+-{std:.2f}')
+# calculate mean std 
+print("Grand average MAE")
+ae_data = data['measured_vergence'] - data['target_vergence']
+ae_data.abs().agg(['mean', 'std'])
 
 # %%
 # Verify that all columns have the same length
@@ -168,6 +167,7 @@ y='measured_vergence',
 data=data,
 hue='subject_id',
 style='subject_id',
+s=sns_marker_size,
 )
 
 

@@ -9,11 +9,14 @@ import seaborn as sns
 
 from helpers.recording_state import RecordingState
 from helpers.vergence_target import vergence_target
+from helpers.gaze_target import gaze_target
 from helpers.stimulus_data import StimulusData
 
 # set subject IDs
 subject_ID = 's008'
 font_size = 10
+figures_dir = 'figures'
+
 # set parameters
 procedures = [RecordingState.VERGENCE_DISTANCE_3.name.lower(),
               RecordingState.VERGENCE_DISTANCE_1.name.lower()]
@@ -44,13 +47,20 @@ for index_procedure, procedure in enumerate(procedures):
 
     target_vergence = np.empty((len(time)))
     target_vergence[:] = np.nan
+    target_gaze_left = np.empty((len(time),2))
+    target_gaze_left[:] = np.nan
+    target_gaze_right = np.empty((len(time),2))
+    target_gaze_right[:] = np.nan
     for index, (key, value) in enumerate(stimulus_timestamps.items()):
         stimulus_position = stimulus_positions[index]
         start_time = value['start_time'] - timestamp0
         end_time = value['end_time'] - timestamp0
         indices = [i for i, t in enumerate(time) if start_time <= t <= end_time]
         target_vergence[indices] = vergence_target(stimulus_position, left_cor, right_cor)
-        
+        target_gaze_left[indices,:] = gaze_target(stimulus_position, left_cor)
+        target_gaze_right[indices,:] = gaze_target(stimulus_position, right_cor)
+
+
     left_ver = np.arcsin(left_visual_axis[:,1])
     left_hor = np.arcsin(left_visual_axis[:,0] / np.cos(left_ver))
     left_ver_deg = np.degrees(left_ver)
@@ -63,13 +73,17 @@ for index_procedure, procedure in enumerate(procedures):
 
     gaze_vergence = np.degrees(np.arccos(np.sum(left_visual_axis * right_visual_axis, axis=1))) # np.sum(var1 * var2, axis=1) takes the elementwise dotproduct for each row of both vars
 
-    axs[0,index_procedure].plot(time, left_hor_deg, label='OS')
-    axs[0,index_procedure].plot(time, right_hor_deg, label='OD')
+    axs[0,index_procedure].plot(time, left_hor_deg, color='#4c72b0', label='OS')
+    axs[0,index_procedure].plot(time, right_hor_deg, color='#dd8452',label='OD')
+    axs[0,index_procedure].plot(time, target_gaze_left[:,0], color='black', label='Target OS')
+    axs[0,index_procedure].plot(time, target_gaze_right[:,0], color='black', linestyle=':', label='Target OD')
     axs[0,index_procedure].set_ylim([-20,20])
-    axs[1,index_procedure].plot(time, left_ver_deg)
-    axs[1,index_procedure].plot(time, right_ver_deg)
+    axs[1,index_procedure].plot(time, left_ver_deg, color='#4c72b0')
+    axs[1,index_procedure].plot(time, right_ver_deg, color='#dd8452')
+    axs[1,index_procedure].plot(time, target_gaze_left[:,1], color='black')
+    axs[1,index_procedure].plot(time, target_gaze_right[:,1], color='black', linestyle=':')
     axs[1,index_procedure].set_ylim([-20,20])
-    axs[2,index_procedure].plot(time, gaze_vergence, color='g', label='Measured')
+    axs[2,index_procedure].plot(time, gaze_vergence, color='#55a868', label='Measured')
     axs[2,index_procedure].plot(time, target_vergence, color='black', label='Target')
     axs[2,index_procedure].set_ylim([2,11])
 
@@ -98,4 +112,7 @@ axs[2, 1].annotate('F', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font
 figure.tight_layout()
 rcParams.update({'font.size': font_size})
 plt.show()
+
+
+figure.savefig(f'{figures_dir}/single subject vergence trace.png', bbox_inches='tight')
 # %%

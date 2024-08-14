@@ -7,6 +7,7 @@ import seaborn as sns
 from scipy.stats import pearsonr, spearmanr, chi2
 import statsmodels.formula.api as smf
 import statsmodels.api as sm
+from __plot_params import *
 
 # %matplotlib qt
 
@@ -18,6 +19,9 @@ subject_IDs = ['s001',
                's003',
                's007',
                's008',]
+
+# set plotting params
+plt.rcParams['font.size'] = font_size
 
 mean_pupil_sizes = []
 mean_vergences = []
@@ -75,13 +79,14 @@ df.dropna(inplace=True)
 
 
 # %% plot model
-plt.figure(figsize=(10, 6))
 # Plot each subject with a unique marker and color
+plt.figure(figsize=figure_size)
 sns.scatterplot(x='average_pupil_area',
 y='measured_vergence',
 data=df,
 hue='subject_id',
 style='subject_id',
+s=sns_marker_size
 )
 
 # Get the fixed effect coefficients
@@ -119,7 +124,7 @@ plt.plot(x_vals, y_vals, color='black', label='Regression', zorder=0)
 
 
 # Customizing the plot
-rcParams.update({'font.size': 16})
+# rcParams.update({'font.size': 16})
 plt.xlabel(u'Average Pupil Area (pixels)')
 plt.ylabel(r'$ \alpha_{measured} (\degree)$')
 plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
