@@ -367,11 +367,37 @@ for var in variables:
     # Perform independent t-test
     t_stat, p_value = stats.ttest_ind(binoc_values, monoc_values)
     
-    # Print results
-    print(f'Test for {var}:')
-    print(f'  T-statistic: {t_stat:.4f}')
-    print(f'  P-value: {p_value:.4f}')
-    print()
+    # # Print results
+    # print(f'Test for {var}:')
+    # print(f'  T-statistic: {t_stat:.4f}')
+    # print(f'  P-value: {p_value:.4f}')
+    # print()
+
+# Extract data for each variable
+accuracy_x = mae_subject[variables[0]]
+accuracy_y = mae_subject[variables[1]]
+
+# Perform independent t-test
+t_stat, p_value = stats.ttest_ind(accuracy_x, accuracy_y)
+
+# Print results
+print(f'Test for accuracy x and y:')
+print(f'  T-statistic: {t_stat:.4f}')
+print(f'  P-value: {p_value:.4f}')
+print()
+
+# Extract data for each variable
+accuracy_x = mae_subject_central[variables[0]]
+accuracy_y = mae_subject_central[variables[1]]
+
+# Perform independent t-test
+t_stat, p_value = stats.ttest_ind(accuracy_x, accuracy_y)
+
+# Print results
+print(f'Test for accuracy x and y:')
+print(f'  T-statistic: {t_stat:.4f}')
+print(f'  P-value: {p_value:.4f}')
+print()
 
 if check_normality_flag:
     check_normality(mae_subject[mae_subject['viewing'] == 'Monocular']['ae x'])
@@ -447,8 +473,20 @@ plt.show()
 
 figure3.savefig(f'{figures_dir}/SD boxplot.png', bbox_inches='tight')
 
-precision_summary = melted_sd_subject.groupby('precision type')['precision value'].agg(['mean', 'std']).reset_index()
-precision_summary_cenrtal = melted_sd_subject_central.groupby('precision type')['precision value'].agg(['mean', 'std']).reset_index()
+precision_summary = (
+    melted_sd_subject
+    .groupby('precision type')['precision value']
+    .agg(['mean', 'std'])
+    .round(2)
+    .reset_index()
+)
+precision_summary_cenrtal = (
+    melted_sd_subject_central
+    .groupby('precision type')['precision value']
+    .agg(['mean', 'std'])
+    .round(2)
+    .reset_index()
+)
 
 print('All points:')
 print(precision_summary)
@@ -458,11 +496,13 @@ print(precision_summary_cenrtal)
 
 # t-tests to test difference between Monocular and Binocular viewing
 # Separate data by viewing condition
-binocular_data = mae_subject[mae_subject['viewing'] == 'Binocular']
-monocular_data = mae_subject[mae_subject['viewing'] == 'Monocular']
+binocular_data = sd_subject[sd_subject['viewing'] == 'Binocular']
+monocular_data = sd_subject[sd_subject['viewing'] == 'Monocular']
 
 # Variables to test
-variables = ['ae x', 'ae y', 'R']
+variables = ['precision x SD', 
+            'precision y SD', 
+            'precision R SD']
 
 # Perform t-tests
 for var in variables:
@@ -473,11 +513,38 @@ for var in variables:
     # Perform independent t-test
     t_stat, p_value = stats.ttest_ind(binoc_values, monoc_values)
     
-    # Print results
-    print(f'Test for {var}:')
-    print(f'  T-statistic: {t_stat:.4f}')
-    print(f'  P-value: {p_value:.4f}')
-    print()
+    # # Print results
+    # print(f'Test for {var}:')
+    # print(f'  T-statistic: {t_stat:.4f}')
+    # print(f'  P-value: {p_value:.4f}')
+    # print()
+
+# Extract data for each variable
+precision_x = sd_subject[variables[0]]
+precision_y = sd_subject[variables[1]]
+
+# Perform independent t-test
+t_stat, p_value = stats.ttest_ind(precision_x, precision_y)
+
+# Print results
+print(f'Test for precision x and y:')
+print(f'  T-statistic: {t_stat:.4f}')
+print(f'  P-value: {p_value:.4f}')
+print()
+
+# Extract data for each variable
+precision_x = sd_subject_central[variables[0]]
+precision_y = sd_subject_central[variables[1]]
+
+# Perform independent t-test
+t_stat, p_value = stats.ttest_ind(precision_x, precision_y)
+
+# Print results
+print(f'Test for precision x and y:')
+print(f'  T-statistic: {t_stat:.4f}')
+print(f'  P-value: {p_value:.4f}')
+print()
+
 
 if check_normality_flag:
     check_normality(sd_subject[sd_subject['viewing'] == 'Monocular']['precision x SD'])
@@ -553,11 +620,13 @@ print(precision_summary_cenrtal)
 
 # t-tests to test difference between Monocular and Binocular viewing
 # Separate data by viewing condition
-binocular_data = mae_subject[mae_subject['viewing'] == 'Binocular']
-monocular_data = mae_subject[mae_subject['viewing'] == 'Monocular']
+binocular_data = s2s_subject[s2s_subject['viewing'] == 'Binocular']
+monocular_data = s2s_subject[s2s_subject['viewing'] == 'Monocular']
 
 # Variables to test
-variables = ['ae x', 'ae y', 'R']
+variables = ['precision x S2S', 
+            'precision y S2S', 
+            'precision R S2S']
 
 # Perform t-tests
 for var in variables:
@@ -568,11 +637,38 @@ for var in variables:
     # Perform independent t-test
     t_stat, p_value = stats.ttest_ind(binoc_values, monoc_values)
     
-    # Print results
-    print(f'Test for {var}:')
-    print(f'  T-statistic: {t_stat:.4f}')
-    print(f'  P-value: {p_value:.4f}')
-    print()
+    # # Print results
+    # print(f'Test for {var}:')
+    # print(f'  T-statistic: {t_stat:.4f}')
+    # print(f'  P-value: {p_value:.4f}')
+    # print()
+
+# Extract data for each variable
+precision_x = s2s_subject[variables[0]]
+precision_y = s2s_subject[variables[1]]
+
+# Perform independent t-test
+t_stat, p_value = stats.ttest_ind(precision_x, precision_y)
+
+# Print results
+print(f'Test for precision x and y:')
+print(f'  T-statistic: {t_stat:.4f}')
+print(f'  P-value: {p_value:.4f}')
+print()
+
+# Extract data for each variable
+precision_x = s2s_subject_central[variables[0]]
+precision_y = s2s_subject_central[variables[1]]
+
+# Perform independent t-test
+t_stat, p_value = stats.ttest_ind(precision_x, precision_y)
+
+# Print results
+print(f'Test for precision x and y:')
+print(f'  T-statistic: {t_stat:.4f}')
+print(f'  P-value: {p_value:.4f}')
+print()
+
 
 if check_normality_flag:
     check_normality(s2s_subject[s2s_subject['viewing'] == 'Monocular']['precision x S2S'])
