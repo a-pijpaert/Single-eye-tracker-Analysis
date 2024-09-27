@@ -169,7 +169,8 @@ data = pd.DataFrame({
 data_single_subject = data[data['subject ID'] == 's003']
 data_stimuli = data_single_subject[data_single_subject['procedure'] == 'MEASUREMENT_RIGHT']
 data_no_outliers = data[data['outlier'] == 0]
-data_no_outliers_central = data_no_outliers[data_no_outliers['stimulus position x'].between(-10, 10)]
+data_no_outliers_central = data_no_outliers[data_no_outliers['stimulus position x'].between(-15, 15)]
+data_no_outliers_7deg = data_no_outliers[data_no_outliers['stimulus position x'].between(-10, 10)]
 
 mae_subject = data_no_outliers.groupby(['subject ID', 'viewing', 'eye'])[['ae x', 'ae y', 'R']].mean().reset_index()
 mae_subject_central = data_no_outliers_central.groupby(['subject ID', 'viewing', 'eye'])[['ae x', 'ae y', 'R']].mean().reset_index()
@@ -204,14 +205,17 @@ sns.scatterplot(x='stimulus position x',
 
 axis1 = figure1.axes[0]
 axis1.set_xlim([-30,30])
-axis1.set_ylim([-21,21])
+axis1.set_ylim([-25,25])
+
+plt.gca().invert_xaxis()
+plt.gca().invert_yaxis()
 
 axis1.set_ylabel('Vertical POG ($^\circ$)')
 axis1.set_xlabel('Horizontal POG ($^\circ$)')
 
 handles, labels = axis1.get_legend_handles_labels()
 new_labels = [label.replace('subject ID', '').strip() for label in labels]
-axis1.legend(handles, new_labels, title='', loc='upper left', bbox_to_anchor=(1, 1))
+axis1.legend(handles, new_labels, title='', loc='lower right') #, loc='upper left', bbox_to_anchor=(1, 1))
 
 plt.savefig(f'{figures_dir}/single subject pog estimates.png', bbox_inches='tight')
 
@@ -242,7 +246,7 @@ plt.setp(axs2, xlim=custom_xlim, ylim=custom_ylim)
 
 handles, labels = axs2.get_legend_handles_labels()
 new_labels = [label.replace('subject ID', '').strip() for label in labels]
-axs2.legend(handles, new_labels, title='', loc='upper left', bbox_to_anchor=(1, 1))
+axs2.legend(handles, new_labels, title='', loc='lower right')#), bbox_to_anchor=(1, 1))
 
 plt.savefig(f'{figures_dir}/horizontal pog estimates vs target.png', bbox_inches='tight')
 
@@ -258,7 +262,7 @@ sns.scatterplot(data=data_no_outliers,
                 x='stimulus position y', y='pog y',
                 hue='subject ID', style='subject ID', 
                 s=sns_marker_size, ax=axs3[0])
-sns.scatterplot(data=data_no_outliers_central, 
+sns.scatterplot(data=data_no_outliers_7deg, 
                 x='stimulus position y', y='pog y',
                 hue='subject ID', style='subject ID', 
                 s=sns_marker_size, ax=axs3[1])
@@ -288,6 +292,77 @@ axs3[1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_s
 
 
 plt.savefig(f'{figures_dir}/vertical pog estimates vs target.png', bbox_inches='tight')
+
+#%%
+# Horizontal and vertical POG vs target
+figure3, axs3 = plt.subplots(2,2, figsize=(10,9))
+plt.rcParams['font.size'] = 12
+
+# draw identity lines
+axs3[0,0].axline((0,0), slope=1, color='gray', zorder=0)
+axs3[0,1].axline((0,0), slope=1, color='gray', zorder=0)
+axs3[1,0].axline((0,0), slope=1, color='gray', zorder=0)
+axs3[1,1].axline((0,0), slope=1, color='gray', zorder=0)
+
+sns.scatterplot(data=data_no_outliers, 
+                x='stimulus position x', y='pog x',
+                hue='subject ID', style='subject ID', 
+                s=sns_marker_size, ax=axs3[0,0])
+sns.scatterplot(data=data_no_outliers_7deg, 
+                x='stimulus position x', y='pog x',
+                hue='subject ID', style='subject ID', 
+                s=sns_marker_size, ax=axs3[0,1])
+sns.scatterplot(data=data_no_outliers, 
+                x='stimulus position y', y='pog y',
+                hue='subject ID', style='subject ID', 
+                s=sns_marker_size, ax=axs3[1,0])
+sns.scatterplot(data=data_no_outliers_7deg, 
+                x='stimulus position y', y='pog y',
+                hue='subject ID', style='subject ID', 
+                s=sns_marker_size, ax=axs3[1,1])
+
+axs3[0,0].legend_.remove()
+axs3[0,0].set_xlabel('Horizontal Stimulus Position ($^\circ$)')
+axs3[0,0].set_ylabel('Horizontal Gaze Angles ($^\circ$)')
+
+axs3[0,1].legend_.remove()
+axs3[0,1].set_xlabel('Horizontal Stimulus Position ($^\circ$)')
+axs3[0,1].set_ylabel('')
+
+axs3[1,0].legend_.remove()
+axs3[1,0].set_xlabel('Vertical Stimulus Position ($^\circ$)')
+axs3[1,0].set_ylabel('Vertical Gaze Angles ($^\circ$)')
+
+axs3[1,1].legend_.remove()
+axs3[1,1].set_xlabel('Vertical Stimulus Position ($^\circ$)')
+axs3[1,1].set_ylabel('')
+
+# Defining custom 'xlim' and 'ylim' values.
+hor_custom_xlim = (-25, 25)
+hor_custom_ylim = (-35, 35)
+vert_custom_xlim = (-12, 12)
+vert_custom_ylim = (-35, 35)
+
+# Setting the values for all axes.
+plt.setp(axs3[0,:], xlim=hor_custom_xlim, ylim=hor_custom_ylim)
+plt.setp(axs3[1,:], xlim=vert_custom_xlim, ylim=vert_custom_ylim)
+
+handles, labels = axs3[1,1].get_legend_handles_labels()
+new_labels = [label.replace('subject ID', '').strip() for label in labels]
+axs3[0,1].legend(handles, new_labels, title='', loc='lower right', fontsize=10) #, bbox_to_anchor=(1, 1))
+
+axs3[0,0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[0,1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[1,0].annotate('C', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[1,1].annotate('D', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+
+plt.tight_layout()
+
+
+plt.savefig(f'{figures_dir}/horizontal vertical pog vs target.png', bbox_inches='tight')
+
+
+
 
 #%%
 # MAE boxplot
@@ -326,7 +401,7 @@ axs4[1].set_ylabel('')
 # Simplify legend by removing the word "viewing"
 handles, labels = axs4[1].get_legend_handles_labels()
 new_labels = [label.replace('viewing', '').strip() for label in labels]
-axs4[1].legend(handles, new_labels, title='', loc='upper left', bbox_to_anchor=(1, 1))
+axs4[1].legend(handles, new_labels, title='', loc='upper right') #, bbox_to_anchor=(1, 1))
 
 figure4.align_ylabels()
 
@@ -451,20 +526,20 @@ axs3[1].set_ylabel('')
 axs3[1].get_yaxis().set_visible(False)
 
 
-# Create a secondary y-axis on the right
+# Create a secondary y-axis on the right for BCEA
 ax3_1 = axs3[1].twinx()
 ax3_1.set_ylim([0, 1**2])
-ax3_1.set_ylabel('Precision ($^\circ$²)', fontsize=font_size)
+ax3_1.set_ylabel('BCEA Precision ($^\circ$²)', fontsize=font_size)
 
 # Simplify legend by removing the word "viewing"
 handles, labels = axs3[1].get_legend_handles_labels()
 new_labels = [label.replace('viewing', '').strip() for label in labels]
-axs3[1].legend(handles, new_labels, title='', loc='upper left', bbox_to_anchor=(1, 1))
+axs3[1].legend(handles, new_labels, title='', loc='upper right')#, bbox_to_anchor=(1, 1))
 
 figure3.align_ylabels()
 
-# Set a shared y-label
-figure3.text(0.04, 0.5, 'Precision ($^\circ$)', va='center', rotation='vertical', fontsize=font_size)
+# Set SD precision y-label
+figure3.text(0.04, 0.5, 'SD Precision ($^\circ$)', va='center', rotation='vertical', fontsize=font_size)
 
 axs3[0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
 axs3[1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
@@ -595,7 +670,7 @@ axs3[1].set_ylabel('')
 # Simplify legend by removing the word "viewing"
 handles, labels = axs3[1].get_legend_handles_labels()
 new_labels = [label.replace('viewing', '').strip() for label in labels]
-axs3[1].legend(handles, new_labels, title='', loc='upper left', bbox_to_anchor=(1, 1))
+axs3[1].legend(handles, new_labels, title='', loc='upper right')#, bbox_to_anchor=(1, 1))
 
 figure3.align_ylabels()
 
@@ -676,6 +751,81 @@ if check_normality_flag:
     check_normality(s2s_subject[s2s_subject['viewing'] == 'Binocular']['precision x S2S'])
     check_normality(s2s_subject[s2s_subject['viewing'] == 'Binocular']['precision y S2S'])
 
+#%% Precision SD, BCEA, S2S boxplot
+# SD all
+figure3, axs3 = plt.subplots(2,2, figsize=(10,9))
+sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject,
+            ax=axs3[0,0], showfliers=False)
+sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject, 
+              dodge=True, alpha=0.7, ax=axs3[0,0], size=10, 
+              edgecolor='white', linewidth=2, legend=False)
+
+# SD central
+sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject_central,
+            ax=axs3[0,1], showfliers=False)
+sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject_central, 
+              dodge=True, alpha=0.7, ax=axs3[0,1], size=10, 
+              edgecolor='white', linewidth=2, legend=False)
+
+# S2S all
+sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_s2s_subject,
+            ax=axs3[1,0], showfliers=False)
+sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melted_s2s_subject, 
+              dodge=True, alpha=0.7, ax=axs3[1,0], size=10, 
+              edgecolor='white', linewidth=2, legend=False)
+
+# S2S central
+sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_s2s_subject_central,
+            ax=axs3[1,1], showfliers=False)
+sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melted_s2s_subject_central, 
+              dodge=True, alpha=0.7, ax=axs3[1,1], size=10, 
+              edgecolor='white', linewidth=2, legend=False)
+
+
+axs3[0,0].set_ylim([0, 1])
+axs3[0,0].set_xlabel('')  
+axs3[0,0].set_ylabel('SD Precision ($^\circ$)', fontsize=16)
+axs3[0,0].legend_.remove()
+
+# axs3[0,1].set_ylim([0, 1])
+axs3[0,1].set_xlabel('')
+axs3[0,1].set_ylabel('')
+axs3[0,1].get_yaxis().set_visible(False)
+
+axs3[1,0].set_ylim([0, 0.35])
+axs3[1,0].set_xlabel('')  
+axs3[1,0].set_ylabel('S2S Precision ($^\circ$)', fontsize=16)
+axs3[1,0].legend_.remove()
+
+axs3[1,1].set_ylim([0, 0.35])
+axs3[1,1].set_xlabel('')
+axs3[1,1].set_ylabel('')
+axs3[1,1].get_yaxis().set_visible(False)
+axs3[1,1].legend_.remove()
+
+
+
+# Create a secondary y-axis on the right for BCEA
+ax3_1 = axs3[0,1].twinx()
+ax3_1.set_ylim([0, 1**2])
+ax3_1.set_ylabel('BCEA Precision ($^\circ$²)', fontsize=font_size)
+
+# Simplify legend by removing the word "viewing"
+handles, labels = axs3[0,1].get_legend_handles_labels()
+new_labels = [label.replace('viewing', '').strip() for label in labels]
+axs3[0,1].legend(handles, new_labels, title='', loc='upper center')#, bbox_to_anchor=(1, 1))
+
+
+axs3[0,0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[0,1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[1,0].annotate('C', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[1,1].annotate('D', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+
+plt.show()
+
+plt.savefig(f'{figures_dir}/precision SD and S2S.png', bbox_inches='tight')
+
+
 #%% 
 # calculate MAE for vergence and show in figure with error bars
 vergence_data = data_no_outliers[data_no_outliers['viewing'] == 'Binocular']
@@ -698,12 +848,12 @@ plt.errorbar(x=mae_vergence['stimulus position x'],
              fmt='o', color='#4c72b0', 
              alpha=1, capsize=5, capthick=2, elinewidth=2)
 
-plt.xlabel('Vertical Stimulus Position ($^\circ$)')
-plt.ylabel('Horizontal Stimulus Position ($^\circ$)')
+plt.xlabel('Horizontal Stimulus Position ($^\circ$)')
+plt.ylabel('Vertical Stimulus Position ($^\circ$)')
 plt.show()
 
 vergence_summary = mae_vergence['ae vergence'].agg(['mean', 'std']).reset_index()
-vergence_summary_central = mae_vergence_central['ae vergence'].agg(['mean', 'std']).reset_index()
+# vergence_summary_central = mae_vergence_central['ae vergence'].agg(['mean', 'std']).reset_index()
 
 
 figure1.savefig(f'{figures_dir}/MAE vergence error bars.png', bbox_inches='tight')
@@ -737,10 +887,82 @@ sns.scatterplot(x='stimulus position x',
                 s=50,
                 figure=figure1,
                 zorder=3)
-plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+plt.xlim([-30,30])
+plt.ylim([-15,15])
+plt.gca().invert_xaxis()
+plt.gca().invert_yaxis()
+plt.legend(fontsize=12)
 plt.xlabel('Horizontal Stimulus Position ($^\circ$)')
 plt.ylabel('Vertical Stimulus Position ($^\circ$)')
+plt.tight_layout()
 plt.show()
 
 
 figure1.savefig(f'{figures_dir}/MAE error bars.png', bbox_inches='tight')
+
+
+#%%
+# single subject gaze and mae per stimulus
+figure1, axs1 = plt.subplots(2,1, figsize=(10,10))
+
+sns.scatterplot(x='pog x',
+                y='pog y',
+                data=data_single_subject,
+                hue='viewing',
+                style='viewing',
+                figure=figure1,
+                s=sns_marker_size,
+                ax=axs1[0],)
+sns.scatterplot(x='stimulus position x',
+                y='stimulus position y',
+                data=data_stimuli,
+                color='black',
+                marker='+',
+                linewidth=2,
+                figure=figure1,
+                s=sns_marker_size,
+                label='Target',
+                zorder=0,
+                ax=axs1[0],)
+
+axs1[1].errorbar(x=mae['stimulus position x'], 
+                y=mae['stimulus position y'], 
+                xerr=mae['ae x'],
+                fmt='o', color='#4c72b0', 
+                alpha=1, capsize=5, capthick=2, elinewidth=2,
+                label='MAE x',)
+axs1[1].errorbar(x=mae['stimulus position x'], 
+                y=mae['stimulus position y'], 
+                yerr=mae['ae y'], 
+                fmt='o', color='#dd8452', 
+                alpha=1, capsize=5, capthick=2, elinewidth=2,
+                label='MAE y',)
+sns.scatterplot(x='stimulus position x',
+                y='stimulus position y',
+                data=data_stimuli,
+                color='black',
+                s=50,
+                figure=figure1,
+                zorder=3,
+                ax=axs1[1],)
+
+
+axs1[0].set_xlim([-30,30])
+axs1[0].set_ylim([-30,30])
+axs1[0].invert_xaxis()
+axs1[0].invert_yaxis()
+axs1[0].set_ylabel('Vertical POG ($^\circ$)')
+axs1[0].set_xlabel('Horizontal POG ($^\circ$)')
+
+axs1[1].set_xlim([-32,32])
+axs1[1].set_ylim([-17,17])
+axs1[1].invert_xaxis()
+axs1[1].invert_yaxis()
+axs1[1].legend(fontsize=12)
+axs1[1].set_xlabel('Horizontal Stimulus Position ($^\circ$)')
+axs1[1].set_ylabel('Vertical Stimulus Position ($^\circ$)')
+
+axs1[0].legend(loc='upper right') 
+axs1[1].legend(loc='upper right') 
+
+plt.savefig(f'{figures_dir}/single subject pog and mae per stim.png', bbox_inches='tight')

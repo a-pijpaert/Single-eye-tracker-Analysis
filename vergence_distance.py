@@ -195,7 +195,7 @@ for random_intercept in random_effects:
 # Compute the predicted y values
 y_vals = intercept + slope * x_vals
 
-plt.plot(x_vals, y_vals, color='black', label='Regression', zorder=0)
+plt.plot(x_vals, y_vals, color='black', label='Marginal Mean', zorder=0)
 
 # Plotting the identity line (y = x)
 plt.plot(x_vals, x_vals, color='gray', linestyle='--', label='Identity', zorder=0)
@@ -205,7 +205,7 @@ plt.plot(x_vals, x_vals, color='gray', linestyle='--', label='Identity', zorder=
 rcParams.update({'font.size': 16})
 plt.xlabel(u'Target Vergence (\N{DEGREE SIGN})')
 plt.ylabel(u'Measured Vergence (\N{DEGREE SIGN})')
-plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+plt.legend(loc='lower right', fontsize=10) #, bbox_to_anchor=(1, 1))
 plt.tight_layout()
 plt.show()
 # %%

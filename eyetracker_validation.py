@@ -1,7 +1,7 @@
 #%%
 import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
-import statsmodels.formula.api as smf
+# import statsmodels.formula.api as smf
 import seaborn as sns
 # %matplotlib qt
 
