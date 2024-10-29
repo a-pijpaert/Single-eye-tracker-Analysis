@@ -1,0 +1,190 @@
+{
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "Eye Tracking and Fixation Data",
+    "description": "Dataset containing comprehensive eye-tracking data, including pupil and corneal coordinates, point of gaze (POG) in various units, axis angles, and outlier identification.",
+    "identifier": "doi:10.12345/example",  // Replace with actual identifier
+    "datePublished": "2024-10-29",
+    "creator": {
+      "@type": "Person",
+      "name": "Arthur Pijpaert"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Amsterdam UMC"
+    },
+    "keywords": ["eye tracking", "pupil data", "point of gaze", "center of rotation", "glint data", "vergence"],
+    "variableMeasured": [
+      {
+        "@type": "PropertyValue",
+        "name": "timestamps",
+        "description": "Timestamps for each frame, indicating the exact time of data capture.",
+        "unitText": "milliseconds"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "frame_nr",
+        "description": "Sequential frame number associated with each timestamp.",
+        "unitText": "integer"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "time",
+        "description": "Elapsed time since the start of recording, used for time-based analysis.",
+        "unitText": "milliseconds"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "left_pupil_scs",
+        "description": "3D coordinates of the left pupil center in the screen coordintate system (SCS).",
+        "unitText": "millimeters"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "left_cornea_scs",
+        "description": "3D coordinates of the left cornea center in the screen coordinate system (SCS).",
+        "unitText": "millimeters"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "right_pupil_scs",
+        "description": "3D coordinates of the right pupil center in the screen coordinate system (SCS).",
+        "unitText": "millimeters"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "right_cornea_scs",
+        "description": "3D coordinates of the right cornea center in the screen coordinate system (SCS).",
+        "unitText": "millimeters"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "left_pog_mm",
+        "description": "Point of gaze (POG) on the screen in millimeters for the left eye.",
+        "unitText": "millimeters"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "left_pog_pixels",
+        "description": "Point of gaze (POG) on the screen in pixels for the left eye, corresponding to screen coordinates.",
+        "unitText": "pixels"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "left_pog_degrees",
+        "description": "Point of gaze (POG) on the screen in degrees for the left eye, indicating angular deviation.",
+        "unitText": "degrees"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "left_theta",
+        "description": "Horizontal angle of gaze for the left eye relative to the optical axis.",
+        "unitText": "degrees"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "left_phi",
+        "description": "Vertical angle of gaze for the left eye relative to the optical axis.",
+        "unitText": "degrees"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "left_visual_axis",
+        "description": "Vector representing the visual axis for the left eye.",
+        "unitText": "vector"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "left_optical_axis",
+        "description": "Vector representing the optical axis for the left eye.",
+        "unitText": "vector"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "right_pog_mm",
+        "description": "Point of gaze (POG) on the screen in millimeters for the right eye.",
+        "unitText": "millimeters"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "right_pog_pixels",
+        "description": "Point of gaze (POG) on the screen in pixels for the right eye, corresponding to screen coordinates.",
+        "unitText": "pixels"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "right_pog_degrees",
+        "description": "Point of gaze (POG) on the screen in degrees for the right eye, indicating angular deviation.",
+        "unitText": "degrees"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "right_theta",
+        "description": "Horizontal angle of gaze for the right eye relative to the optical axis.",
+        "unitText": "degrees"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "right_phi",
+        "description": "Vertical angle of gaze for the right eye relative to the optical axis.",
+        "unitText": "degrees"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "right_visual_axis",
+        "description": "Vector representing the visual axis for the right eye.",
+        "unitText": "vector"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "right_optical_axis",
+        "description": "Vector representing the optical axis for the right eye.",
+        "unitText": "vector"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "stimulus_number",
+        "description": "Identifier for the stimulus presented during data capture.",
+        "unitText": "integer"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "stim_pos_degrees",
+        "description": "Position of the stimulus in degrees relative to the screen center.",
+        "unitText": "degrees"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "is_outlier",
+        "description": "Boolean flag indicating if the data point is an outlier.",
+        "unitText": "boolean"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "left_cor",
+        "description": "Center of Rotation of the left eye in screen coordinate system.",
+        "unitText": "millimeters"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "right_cor",
+        "description": "Center of Rotation of the right eye in screen coordinate system.",
+        "unitText": "millimeters"
+      }
+    ],
+    "distribution": [
+      {
+        "@type": "DataDownload",
+        "name": "Fixation Data (.npz)",
+        "contentUrl": "https://example-repository.org/download/dataset.npz", // Replace with actual download URL
+        "encodingFormat": "application/x-npz"
+      },
+      {
+        "@type": "DataDownload",
+        "name": "Metadata (.json)",
+        "contentUrl": "https://example-repository.org/download/metadata.json",
+        "encodingFormat": "application/json"
+      }
+    ]
+  }
+  
