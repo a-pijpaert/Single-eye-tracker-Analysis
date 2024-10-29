@@ -1,3 +1,0 @@
-%%% perform linear mixed effects on vergence data
-
-data_struct = load('data/vergence_distance.mat');

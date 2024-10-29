@@ -1,7 +1,0 @@
-,absolute_error_x,absolute_error_x,absolute_error_y,absolute_error_y,absolute_error_x,absolute_error_x,absolute_error_y,absolute_error_y,precision_x_std,precision_x_std,precision_y_std,precision_y_std,precision_x_std,precision_x_std,precision_y_std,precision_y_std
-,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std
-trial_name,,,,,,,,,,,,,,,,
-bino_left,1.27,1.83,1.41,1.79,0.76,0.67,0.90,0.94,0.19,0.10,0.36,0.25,0.19,0.10,0.36,0.25
-bino_right,1.33,1.51,1.15,1.52,0.78,0.74,0.62,0.65,0.19,0.10,0.33,0.20,0.19,0.10,0.33,0.20
-mono_left,1.09,1.46,1.57,2.31,0.61,0.75,0.89,1.05,0.18,0.11,0.35,0.28,0.18,0.11,0.35,0.28
-mono_right,1.19,1.76,1.01,1.40,0.75,1.52,0.62,0.72,0.20,0.11,0.32,0.21,0.20,0.11,0.32,0.21
