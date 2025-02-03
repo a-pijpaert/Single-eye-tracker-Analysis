@@ -91,7 +91,7 @@ for procedure, stimulus_position_z in zip(procedures, stimulus_positions_z):
         for stimulus, target_vergence in zip(stimulus_numbers, target_vergences):
             stimulus_indices = np.where(stimulus_number == stimulus)
             if 1 in is_outlier[stimulus_indices]:
-                print(subject_ID, procedure)
+                print(subject_ID, procedure, stimulus)
                 continue
             else:    
                 no_stimulus_datapoints = len(stimulus_indices[0])

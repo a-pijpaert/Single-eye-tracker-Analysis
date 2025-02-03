@@ -141,6 +141,9 @@ for procedure in procedures:
                     eye_id = np.append(eye_id, f'{eye}')
                     ae_vergences = np.append(ae_vergences, ae_vergence)
                     sigma_xy = np.append(sigma_xy, sigma_xy_)
+                else:
+                    print(mean_pog_deg[0])
+                    print(mean_pog_deg[1])
 
 data = pd.DataFrame({
     'subject ID': subject_ids,

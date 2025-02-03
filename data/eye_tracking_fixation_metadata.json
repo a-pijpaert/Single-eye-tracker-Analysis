@@ -2,7 +2,7 @@
     "@context": "https://schema.org",
     "@type": "Dataset",
     "name": "Eye Tracking and Fixation Data",
-    "description": "Dataset containing comprehensive eye-tracking data, including pupil and corneal coordinates, point of gaze (POG) in various units, axis angles, and outlier identification.",
+    "description": "Dataset containing comprehensive eye-tracking data, including pupil and corneal coordinates, point of gaze (POG) in various units, axis angles and center of rotation locations.",
     "identifier": "doi:10.12345/example",  // Replace with actual identifier
     "datePublished": "2024-10-29",
     "creator": {
