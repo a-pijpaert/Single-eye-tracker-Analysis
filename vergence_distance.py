@@ -200,6 +200,10 @@ plt.plot(x_vals, y_vals, color='black', label='Marginal Mean', zorder=0)
 # Plotting the identity line (y = x)
 plt.plot(x_vals, x_vals, color='gray', linestyle='--', label='Identity', zorder=0)
 
+ax = plt.gca()
+ax.set_aspect('equal')
+ax.set_xlim([4, 10])
+ax.set_ylim([2, 10])
 
 # Customizing the plot
 rcParams.update({'font.size': 16})

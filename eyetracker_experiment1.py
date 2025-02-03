@@ -298,7 +298,7 @@ plt.savefig(f'{figures_dir}/vertical pog estimates vs target.png', bbox_inches='
 
 #%%
 # Horizontal and vertical POG vs target
-figure3, axs3 = plt.subplots(2,2, figsize=(10,9))
+figure3, axs3 = plt.subplots(2,2, figsize=(7,9))
 plt.rcParams['font.size'] = 12
 
 # draw identity lines
@@ -343,7 +343,7 @@ axs3[1,1].set_ylabel('')
 # Defining custom 'xlim' and 'ylim' values.
 hor_custom_xlim = (-25, 25)
 hor_custom_ylim = (-35, 35)
-vert_custom_xlim = (-12, 12)
+vert_custom_xlim = (-25, 25)
 vert_custom_ylim = (-35, 35)
 
 # Setting the values for all axes.
@@ -358,6 +358,11 @@ axs3[0,0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font
 axs3[0,1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
 axs3[1,0].annotate('C', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
 axs3[1,1].annotate('D', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+
+axs3[0,0].set_aspect('equal')
+axs3[0,1].set_aspect('equal')
+axs3[1,0].set_aspect('equal')
+axs3[1,1].set_aspect('equal')
 
 plt.tight_layout()
 
@@ -836,7 +841,7 @@ mae_vergence = vergence_data.groupby(['stimulus ID'])[['ae vergence',
                                                        'stimulus position x', 
                                                        'stimulus position y']].mean()
 
-figure1 = plt.figure(figsize=(10, 6))
+figure1 = plt.figure()
 sns.scatterplot(x='stimulus position x',
                 y='stimulus position y',
                 data=data_stimuli,
@@ -851,9 +856,17 @@ plt.errorbar(x=mae_vergence['stimulus position x'],
              fmt='o', color='#4c72b0', 
              alpha=1, capsize=5, capthick=2, elinewidth=2)
 
+ax = plt.gca()
+ax.set_aspect('equal')
+ax.set_xlim([-22, 22])
+ax.set_ylim([-15, 15])
+
+plt.tight_layout()
+
 plt.xlabel('Horizontal Stimulus Position ($^\circ$)')
 plt.ylabel('Vertical Stimulus Position ($^\circ$)')
 plt.show()
+
 
 vergence_summary = mae_vergence['ae vergence'].agg(['mean', 'std']).reset_index()
 # vergence_summary_central = mae_vergence_central['ae vergence'].agg(['mean', 'std']).reset_index()
@@ -906,7 +919,7 @@ figure1.savefig(f'{figures_dir}/MAE error bars.png', bbox_inches='tight')
 
 #%%
 # single subject gaze and mae per stimulus
-figure1, axs1 = plt.subplots(2,1, figsize=(10,10))
+figure1, axs1 = plt.subplots(1,2, figsize=(10,10))
 
 sns.scatterplot(x='pog x',
                 y='pog y',
@@ -954,18 +967,25 @@ axs1[0].set_xlim([-30,30])
 axs1[0].set_ylim([-30,30])
 axs1[0].invert_xaxis()
 axs1[0].invert_yaxis()
+axs1[0].set_aspect('equal')
 axs1[0].set_ylabel('Vertical POG ($^\circ$)')
 axs1[0].set_xlabel('Horizontal POG ($^\circ$)')
 
-axs1[1].set_xlim([-32,32])
-axs1[1].set_ylim([-17,17])
+axs1[1].set_xlim([-30,30])
+axs1[1].set_ylim([-25,25])
 axs1[1].invert_xaxis()
 axs1[1].invert_yaxis()
+axs1[1].set_aspect('equal')
 axs1[1].legend(fontsize=12)
 axs1[1].set_xlabel('Horizontal Stimulus Position ($^\circ$)')
 axs1[1].set_ylabel('Vertical Stimulus Position ($^\circ$)')
 
 axs1[0].legend(loc='upper right') 
 axs1[1].legend(loc='upper right') 
+
+axs1[0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs1[1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+
+figure1.tight_layout()
 
 plt.savefig(f'{figures_dir}/single subject pog and mae per stim.png', bbox_inches='tight')
