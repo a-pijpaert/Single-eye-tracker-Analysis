@@ -14,7 +14,7 @@ from helpers.stimulus_data import StimulusData
 
 # set subject IDs
 subject_ID = 's008'
-font_size = 10
+font_size = 8
 figures_dir = 'figures'
 
 # set parameters
@@ -73,10 +73,10 @@ for index_procedure, procedure in enumerate(procedures):
 
     gaze_vergence = np.degrees(np.arccos(np.sum(left_visual_axis * right_visual_axis, axis=1))) # np.sum(var1 * var2, axis=1) takes the elementwise dotproduct for each row of both vars
 
-    axs[0,index_procedure].plot(time, left_hor_deg, color='#4c72b0', label='OS')
-    axs[0,index_procedure].plot(time, right_hor_deg, color='#dd8452',label='OD')
-    axs[0,index_procedure].plot(time, target_gaze_left[:,0], color='black', label='Target OS')
-    axs[0,index_procedure].plot(time, target_gaze_right[:,0], color='black', linestyle=':', label='Target OD')
+    axs[0,index_procedure].plot(time, left_hor_deg, color='#4c72b0', label='Left Eye')
+    axs[0,index_procedure].plot(time, right_hor_deg, color='#dd8452',label='Right Eye')
+    axs[0,index_procedure].plot(time, target_gaze_left[:,0], color='black', label='Target Left Eye')
+    axs[0,index_procedure].plot(time, target_gaze_right[:,0], color='black', linestyle=':', label='Target Right Eye')
     axs[0,index_procedure].set_ylim([-20,20])
     axs[1,index_procedure].plot(time, left_ver_deg, color='#4c72b0')
     axs[1,index_procedure].plot(time, right_ver_deg, color='#dd8452')
@@ -98,8 +98,8 @@ axs[2,1].set_xlabel('Time (s)')
 axs[2,0].set_ylabel(u'Vergence (\N{DEGREE SIGN})')
 # axs[2,0].set_ylim([4,7])
 # axs[2,1].set_ylim([7,10])
-axs[0,1].legend(loc='upper left', bbox_to_anchor=(1, 1))
-axs[2,1].legend(loc='upper left', bbox_to_anchor=(1, 1))
+axs[0,1].legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=font_size)
+axs[2,1].legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=font_size)
 
 # add labels to the subplots
 axs[0, 0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')

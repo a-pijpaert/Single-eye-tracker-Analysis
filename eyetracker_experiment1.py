@@ -174,15 +174,20 @@ data_stimuli = data_single_subject[data_single_subject['procedure'] == 'MEASUREM
 data_no_outliers = data[data['outlier'] == 0]
 data_no_outliers_central = data_no_outliers[data_no_outliers['stimulus position x'].between(-15, 15)]
 data_no_outliers_7deg = data_no_outliers[data_no_outliers['stimulus position x'].between(-10, 10)]
+data_no_outliers_eccentric= data_no_outliers[~data_no_outliers['stimulus position x'].between(-15, 15)]
 
 mae_subject = data_no_outliers.groupby(['subject ID', 'viewing', 'eye'])[['ae x', 'ae y', 'R']].mean().reset_index()
 mae_subject_central = data_no_outliers_central.groupby(['subject ID', 'viewing', 'eye'])[['ae x', 'ae y', 'R']].mean().reset_index()
+mae_subject_eccentric = data_no_outliers_eccentric.groupby(['subject ID', 'viewing', 'eye'])[['ae x', 'ae y', 'R']].mean().reset_index()
 
 sd_subject = data_no_outliers.groupby(['subject ID', 'viewing', 'eye'])[['precision x SD', 'precision y SD', 'precision R SD']].mean().reset_index()
 sd_subject_central = data_no_outliers_central.groupby(['subject ID', 'viewing', 'eye'])[['precision x SD', 'precision y SD', 'precision R SD']].mean().reset_index()
+sd_subject_eccentric = data_no_outliers_eccentric.groupby(['subject ID', 'viewing', 'eye'])[['precision x SD', 'precision y SD', 'precision R SD']].mean().reset_index()
 
 s2s_subject = data_no_outliers.groupby(['subject ID', 'viewing', 'eye'])[['precision x S2S', 'precision y S2S', 'precision R S2S']].mean().reset_index()
 s2s_subject_central = data_no_outliers_central.groupby(['subject ID', 'viewing', 'eye'])[['precision x S2S', 'precision y S2S', 'precision R S2S']].mean().reset_index()
+s2s_subject_eccentric = data_no_outliers_eccentric.groupby(['subject ID', 'viewing', 'eye'])[['precision x S2S', 'precision y S2S', 'precision R S2S']].mean().reset_index()
+
 
 
 #%%
@@ -298,77 +303,89 @@ plt.savefig(f'{figures_dir}/vertical pog estimates vs target.png', bbox_inches='
 
 #%%
 # Horizontal and vertical POG vs target
-figure3, axs3 = plt.subplots(2,2, figsize=(7,9))
-plt.rcParams['font.size'] = 12
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# draw identity lines
-axs3[0,0].axline((0,0), slope=1, color='gray', zorder=0)
-axs3[0,1].axline((0,0), slope=1, color='gray', zorder=0)
-axs3[1,0].axline((0,0), slope=1, color='gray', zorder=0)
-axs3[1,1].axline((0,0), slope=1, color='gray', zorder=0)
+# Horizontal and vertical POG vs target in a (1,4) layout
+figure3, axs3 = plt.subplots(1, 4, figsize=(10, 6))
+plt.rcParams['font.size'] = 10
 
+# Draw identity lines
+for ax in axs3:
+    ax.axline((0, 0), slope=1, color='gray', zorder=0)
+
+# Scatter plots
 sns.scatterplot(data=data_no_outliers, 
                 x='stimulus position x', y='pog x',
                 hue='subject ID', style='subject ID', 
-                s=sns_marker_size, ax=axs3[0,0])
+                s=sns_marker_size, ax=axs3[0])
+
 sns.scatterplot(data=data_no_outliers_7deg, 
                 x='stimulus position x', y='pog x',
                 hue='subject ID', style='subject ID', 
-                s=sns_marker_size, ax=axs3[0,1])
+                s=sns_marker_size, ax=axs3[1])
+
 sns.scatterplot(data=data_no_outliers, 
                 x='stimulus position y', y='pog y',
                 hue='subject ID', style='subject ID', 
-                s=sns_marker_size, ax=axs3[1,0])
+                s=sns_marker_size, ax=axs3[2])
+
 sns.scatterplot(data=data_no_outliers_7deg, 
                 x='stimulus position y', y='pog y',
                 hue='subject ID', style='subject ID', 
-                s=sns_marker_size, ax=axs3[1,1])
+                s=sns_marker_size, ax=axs3[3])
 
-axs3[0,0].legend_.remove()
-axs3[0,0].set_xlabel('Horizontal Stimulus Position ($^\circ$)')
-axs3[0,0].set_ylabel('Horizontal Gaze Angles ($^\circ$)')
+# Remove redundant legends
+for ax in axs3:
+    ax.legend_.remove()
 
-axs3[0,1].legend_.remove()
-axs3[0,1].set_xlabel('Horizontal Stimulus Position ($^\circ$)')
-axs3[0,1].set_ylabel('')
+# Axis labels
+axs3[0].set_xlabel('Horizontal Stimulus Position ($^\circ$)')
+axs3[0].set_ylabel('Horizontal Gaze Angles ($^\circ$)')
 
-axs3[1,0].legend_.remove()
-axs3[1,0].set_xlabel('Vertical Stimulus Position ($^\circ$)')
-axs3[1,0].set_ylabel('Vertical Gaze Angles ($^\circ$)')
+axs3[1].set_xlabel('Horizontal Stimulus Position ($^\circ$)')
+axs3[1].set_ylabel('')
 
-axs3[1,1].legend_.remove()
-axs3[1,1].set_xlabel('Vertical Stimulus Position ($^\circ$)')
-axs3[1,1].set_ylabel('')
+axs3[2].set_xlabel('Vertical Stimulus Position ($^\circ$)')
+axs3[2].set_ylabel('Vertical Gaze Angles ($^\circ$)')
 
-# Defining custom 'xlim' and 'ylim' values.
+axs3[3].set_xlabel('Vertical Stimulus Position ($^\circ$)')
+axs3[3].set_ylabel('')
+
+# Set axis limits
 hor_custom_xlim = (-25, 25)
 hor_custom_ylim = (-35, 35)
 vert_custom_xlim = (-25, 25)
 vert_custom_ylim = (-35, 35)
 
-# Setting the values for all axes.
-plt.setp(axs3[0,:], xlim=hor_custom_xlim, ylim=hor_custom_ylim)
-plt.setp(axs3[1,:], xlim=vert_custom_xlim, ylim=vert_custom_ylim)
+axs3[0].set_xlim(hor_custom_xlim)
+axs3[0].set_ylim(hor_custom_ylim)
+axs3[1].set_xlim(hor_custom_xlim)
+axs3[1].set_ylim(hor_custom_ylim)
+axs3[2].set_xlim(vert_custom_xlim)
+axs3[2].set_ylim(vert_custom_ylim)
+axs3[3].set_xlim(vert_custom_xlim)
+axs3[3].set_ylim(vert_custom_ylim)
 
-handles, labels = axs3[1,1].get_legend_handles_labels()
+# Legend (only in the last subplot)
+handles, labels = axs3[3].get_legend_handles_labels()
 new_labels = [label.replace('subject ID', '').strip() for label in labels]
-axs3[0,1].legend(handles, new_labels, title='', loc='lower right', fontsize=10) #, bbox_to_anchor=(1, 1))
+axs3[3].legend(handles, new_labels, title='', loc='lower right', fontsize=8)
 
-axs3[0,0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
-axs3[0,1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
-axs3[1,0].annotate('C', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
-axs3[1,1].annotate('D', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+# Annotate subplots
+axs3[0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[2].annotate('C', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[3].annotate('D', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
 
-axs3[0,0].set_aspect('equal')
-axs3[0,1].set_aspect('equal')
-axs3[1,0].set_aspect('equal')
-axs3[1,1].set_aspect('equal')
+# Set equal aspect ratio
+for ax in axs3:
+    ax.set_aspect('equal')
 
 plt.tight_layout()
-
+plt.show()
 
 plt.savefig(f'{figures_dir}/horizontal vertical pog vs target.png', bbox_inches='tight')
-
 
 
 
@@ -383,8 +400,15 @@ melted_mae_subject_central = mae_subject_central.melt(id_vars=['subject ID', 'vi
                     var_name='ae type', value_name='ae value')
 melted_mae_subject_central['ae type'] = melted_mae_subject_central['ae type'].replace({'ae x': 'x',
                                                                        'ae y': 'y'})
+
+melted_mae_subject_eccentric = mae_subject_eccentric.melt(id_vars=['subject ID', 'viewing', 'eye'], value_vars=['ae x', 'ae y', 'R'], 
+                    var_name='ae type', value_name='ae value')
+melted_mae_subject_eccentric['ae type'] = melted_mae_subject_eccentric['ae type'].replace({'ae x': 'x',
+                                                                       'ae y': 'y'})
+
 # MAE per Monocular and Binocular with both eye together
-figure4, axs4 = plt.subplots(1,2, figsize=(12, 6))
+figure4, axs4 = plt.subplots(1,3, figsize=(12, 6))
+
 sns.boxplot(x='ae type', y='ae value', hue='viewing', data=melted_mae_subject,
             ax=axs4[0], showfliers=False)
 sns.stripplot(x='ae type', y='ae value', hue='viewing', data=melted_mae_subject, 
@@ -392,33 +416,43 @@ sns.stripplot(x='ae type', y='ae value', hue='viewing', data=melted_mae_subject,
               edgecolor='white', linewidth=2, legend=False)
 
 
-axs4[0].set_ylim([0, 4])
+axs4[0].set_ylim([0, 10])
 axs4[0].set_xlabel('')  
 axs4[0].set_ylabel('')
-axs4[0].legend_.remove()
 
 sns.boxplot(x='ae type', y='ae value', hue='viewing', data=melted_mae_subject_central,
             ax=axs4[1], showfliers=False)
 sns.stripplot(x='ae type', y='ae value', hue='viewing', data=melted_mae_subject_central, 
               dodge=True, alpha=0.7, ax=axs4[1], size=10, 
               edgecolor='white', linewidth=2, legend=False)
-axs4[1].set_ylim([0, 4])
+axs4[1].set_ylim([0, 10])
 axs4[1].set_xlabel('')
 axs4[1].set_ylabel('')
+axs4[1].legend_.remove()
+
+sns.boxplot(x='ae type', y='ae value', hue='viewing', data=melted_mae_subject_eccentric,
+            ax=axs4[2], showfliers=False)
+sns.stripplot(x='ae type', y='ae value', hue='viewing', data=melted_mae_subject_eccentric, 
+              dodge=True, alpha=0.7, ax=axs4[2], size=10, 
+              edgecolor='white', linewidth=2, legend=False)
+axs4[2].set_ylim([0, 10])
+axs4[2].set_xlabel('')
+axs4[2].set_ylabel('')
+axs4[2].legend_.remove()
 
 # Simplify legend by removing the word "viewing"
 handles, labels = axs4[1].get_legend_handles_labels()
 new_labels = [label.replace('viewing', '').strip() for label in labels]
-axs4[1].legend(handles, new_labels, title='', loc='upper right') #, bbox_to_anchor=(1, 1))
+axs4[0].legend(handles, new_labels, title='', loc='upper right') #, bbox_to_anchor=(1, 1))
 
 figure4.align_ylabels()
 
 # Set a shared y-label
-figure4.text(0.04, 0.5, 'MAE ($^\circ$)', va='center', rotation='vertical', fontsize=12)
+figure4.text(0.07, 0.5, 'MAE ($^\circ$)', va='center', rotation='vertical', fontsize=12)
 
 axs4[0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
 axs4[1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
-
+axs4[2].annotate('C', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
 
 plt.show()
 
@@ -426,12 +460,16 @@ figure4.savefig(f'{figures_dir}/MAE boxplot.png', bbox_inches='tight')
 
 mae_summary = melted_mae_subject.groupby(['viewing', 'ae type'])['ae value'].agg(['mean', 'std']).reset_index().sort_values('viewing')
 mae_summary_cenrtal = melted_mae_subject_central.groupby(['viewing', 'ae type'])['ae value'].agg(['mean', 'std']).reset_index().sort_values('viewing')
+mae_summary_eccentric = melted_mae_subject_eccentric.groupby(['viewing', 'ae type'])['ae value'].agg(['mean', 'std']).reset_index().sort_values('viewing')
 
 print('All points:')
-print(mae_summary)
+# print(mae_summary)
 print('')
 print('Central points:')
 print(mae_summary_cenrtal)
+print('')
+print('Eccentric points:')
+print(mae_summary_eccentric)
 
 # t-tests to test difference between Monocular and Binocular viewing
 # Separate data by viewing condition
@@ -450,11 +488,11 @@ for var in variables:
     # Perform independent t-test
     t_stat, p_value = stats.ttest_ind(binoc_values, monoc_values)
     
-    # # Print results
-    # print(f'Test for {var}:')
-    # print(f'  T-statistic: {t_stat:.4f}')
-    # print(f'  P-value: {p_value:.4f}')
-    # print()
+    # Print results
+    print(f'Test for {var}:')
+    print(f'  T-statistic: {t_stat:.4f}')
+    print(f'  P-value: {p_value:.4f}')
+    print()
 
 # Extract data for each variable
 accuracy_x = mae_subject[variables[0]]
@@ -504,6 +542,14 @@ melted_sd_subject_central = sd_subject_central.melt(id_vars=['subject ID', 'view
 melted_sd_subject_central['precision type'] = melted_sd_subject_central['precision type'].replace({'precision x SD': 'SD x',
                                                                        'precision y SD': 'SD y',
                                                                        'precision R SD': 'BCEA'})
+
+melted_sd_subject_eccentric = sd_subject_eccentric.melt(id_vars=['subject ID', 'viewing', 'eye'], 
+                                                    value_vars=['precision x SD', 'precision y SD', 'precision R SD'], 
+                                                    var_name='precision type', value_name='precision value')
+melted_sd_subject_eccentric['precision type'] = melted_sd_subject_eccentric['precision type'].replace({'precision x SD': 'SD x',
+                                                                       'precision y SD': 'SD y',
+                                                                       'precision R SD': 'BCEA'})
+
 # precision per Monocular and Binocular with both eye together
 figure3, axs3 = plt.subplots(1,2, figsize=figure_size)
 sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject,
@@ -571,11 +617,22 @@ precision_summary_cenrtal = (
     .reset_index()
 )
 
+precision_summary_eccentric = (
+    melted_sd_subject_eccentric
+    .groupby('precision type')['precision value']
+    .agg(['mean', 'std'])
+    .round(2)
+    .reset_index()
+)
+
 print('All points:')
 print(precision_summary)
 print('')
 print('Central points:')
 print(precision_summary_cenrtal)
+print('')
+print('eccemtroc points:')
+print(precision_summary_eccentric)
 
 # t-tests to test difference between Monocular and Binocular viewing
 # Separate data by viewing condition
@@ -652,6 +709,15 @@ melted_s2s_subject_central['precision type'] = melted_s2s_subject_central['preci
     'precision x S2S': 'x',
     'precision y S2S': 'y',
     'precision R S2S': 'R'})
+
+melted_s2s_subject_eccentric = s2s_subject_eccentric.melt(id_vars=['subject ID', 'viewing', 'eye'], 
+                                                      value_vars=['precision x S2S', 'precision y S2S', 'precision R S2S'], 
+                                                      var_name='precision type', value_name='precision value')
+melted_s2s_subject_eccentric['precision type'] = melted_s2s_subject_eccentric['precision type'].replace({
+    'precision x S2S': 'x',
+    'precision y S2S': 'y',
+    'precision R S2S': 'R'})
+
 # precision per Monocular and Binocular with both eye together
 figure3, axs3 = plt.subplots(1,2, figsize=(12, 6))
 sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_s2s_subject,
@@ -694,12 +760,16 @@ figure3.savefig(f'{figures_dir}/S2S boxplot.png', bbox_inches='tight')
 
 precision_summary = melted_s2s_subject.groupby('precision type')['precision value'].agg(['mean', 'std']).reset_index()
 precision_summary_cenrtal = melted_s2s_subject_central.groupby('precision type')['precision value'].agg(['mean', 'std']).reset_index()
+precision_summary_eccentric = melted_s2s_subject_eccentric.groupby('precision type')['precision value'].agg(['mean', 'std']).reset_index()
 
 print('All points:')
 print(precision_summary)
 print('')
 print('Central points:')
 print(precision_summary_cenrtal)
+print('')
+print('Eccentric points:')
+print(precision_summary_eccentric)
 
 # t-tests to test difference between Monocular and Binocular viewing
 # Separate data by viewing condition
@@ -761,7 +831,7 @@ if check_normality_flag:
 
 #%% Precision SD, BCEA, S2S boxplot
 # SD all
-figure3, axs3 = plt.subplots(2,2, figsize=(10,9))
+figure3, axs3 = plt.subplots(2,3, figsize=(10,9))
 sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject,
             ax=axs3[0,0], showfliers=False)
 sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject, 
@@ -773,6 +843,13 @@ sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_
             ax=axs3[0,1], showfliers=False)
 sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject_central, 
               dodge=True, alpha=0.7, ax=axs3[0,1], size=10, 
+              edgecolor='white', linewidth=2, legend=False)
+
+# SD eccentric
+sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject_eccentric,
+            ax=axs3[0,2], showfliers=False)
+sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melted_sd_subject_eccentric, 
+              dodge=True, alpha=0.7, ax=axs3[0,2], size=10, 
               edgecolor='white', linewidth=2, legend=False)
 
 # S2S all
@@ -789,45 +866,66 @@ sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melte
               dodge=True, alpha=0.7, ax=axs3[1,1], size=10, 
               edgecolor='white', linewidth=2, legend=False)
 
+# S2S eccentric
+sns.boxplot(x='precision type', y='precision value', hue='viewing', data=melted_s2s_subject_eccentric,
+            ax=axs3[1,2], showfliers=False)
+sns.stripplot(x='precision type', y='precision value', hue='viewing', data=melted_s2s_subject_eccentric, 
+              dodge=True, alpha=0.7, ax=axs3[1,2], size=10, 
+              edgecolor='white', linewidth=2, legend=False)
 
-axs3[0,0].set_ylim([0, 1])
+
+axs3[0,0].set_ylim([0, 3])
 axs3[0,0].set_xlabel('')  
 axs3[0,0].set_ylabel('SD Precision ($^\circ$)', fontsize=16)
-axs3[0,0].legend_.remove()
+# axs3[0,0].legend_.remove()
 
-# axs3[0,1].set_ylim([0, 1])
+axs3[0,1].set_ylim([0, 3])
 axs3[0,1].set_xlabel('')
 axs3[0,1].set_ylabel('')
 axs3[0,1].get_yaxis().set_visible(False)
+axs3[0,1].legend_.remove()
 
-axs3[1,0].set_ylim([0, 0.35])
+axs3[0,2].set_ylim([0, 3])
+axs3[0,2].set_xlabel('')
+axs3[0,2].set_ylabel('')
+axs3[0,2].get_yaxis().set_visible(False)
+axs3[0,2].legend_.remove()
+
+axs3[1,0].set_ylim([0, 0.42])
 axs3[1,0].set_xlabel('')  
 axs3[1,0].set_ylabel('S2S Precision ($^\circ$)', fontsize=16)
 axs3[1,0].legend_.remove()
 
-axs3[1,1].set_ylim([0, 0.35])
+axs3[1,1].set_ylim([0, 0.42])
 axs3[1,1].set_xlabel('')
 axs3[1,1].set_ylabel('')
 axs3[1,1].get_yaxis().set_visible(False)
 axs3[1,1].legend_.remove()
 
+axs3[1,2].set_ylim([0, 0.42])
+axs3[1,2].set_xlabel('')
+axs3[1,2].set_ylabel('')
+axs3[1,2].get_yaxis().set_visible(False)
+axs3[1,2].legend_.remove()
 
 
 # Create a secondary y-axis on the right for BCEA
-ax3_1 = axs3[0,1].twinx()
+ax3_1 = axs3[0,2].twinx()
 ax3_1.set_ylim([0, 1**2])
 ax3_1.set_ylabel('BCEA Precision ($^\circ$²)', fontsize=font_size)
 
 # Simplify legend by removing the word "viewing"
 handles, labels = axs3[0,1].get_legend_handles_labels()
 new_labels = [label.replace('viewing', '').strip() for label in labels]
-axs3[0,1].legend(handles, new_labels, title='', loc='upper center')#, bbox_to_anchor=(1, 1))
+axs3[0,0].legend(handles, new_labels, title='', loc='upper right', fontsize=12)#, bbox_to_anchor=(1, 1))
 
 
 axs3[0,0].annotate('A', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
 axs3[0,1].annotate('B', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
-axs3[1,0].annotate('C', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
-axs3[1,1].annotate('D', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[0,2].annotate('C', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[1,0].annotate('D', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[1,1].annotate('E', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
+axs3[1,2].annotate('F', xy=(0.01, 0.99), xycoords='axes fraction', fontsize=font_size, ha='left', va='top')
 
 plt.show()
 
@@ -880,7 +978,9 @@ ae_data = data_no_outliers
 mae = ae_data.groupby(['stimulus ID'])[['ae x',
                                         'ae y',
                                         'stimulus position x', 
-                                        'stimulus position y']].mean()
+                                        'stimulus position y',
+                                        'pog x',
+                                        'pog y']].mean()
 
 figure1 = plt.figure(figsize=(10, 6))
 # Add error bars using Matplotlib
@@ -941,26 +1041,31 @@ sns.scatterplot(x='stimulus position x',
                 zorder=0,
                 ax=axs1[0],)
 
-axs1[1].errorbar(x=mae['stimulus position x'], 
-                y=mae['stimulus position y'], 
-                xerr=mae['ae x'],
-                fmt='o', color='#4c72b0', 
-                alpha=1, capsize=5, capthick=2, elinewidth=2,
-                label='MAE x',)
-axs1[1].errorbar(x=mae['stimulus position x'], 
-                y=mae['stimulus position y'], 
-                yerr=mae['ae y'], 
-                fmt='o', color='#dd8452', 
-                alpha=1, capsize=5, capthick=2, elinewidth=2,
-                label='MAE y',)
 sns.scatterplot(x='stimulus position x',
                 y='stimulus position y',
                 data=data_stimuli,
                 color='black',
-                s=50,
+                marker='+',
+                linewidth=2,
+                s=sns_marker_size,
                 figure=figure1,
-                zorder=3,
+                zorder=0,
                 ax=axs1[1],)
+axs1[1].errorbar(x=mae['pog x'], 
+                y=mae['pog y'], 
+                xerr=mae['ae x'],
+                fmt='o', color='#4c72b0', 
+                alpha=1, capsize=5, capthick=2, elinewidth=2,
+                label='MAE x',)
+axs1[1].errorbar(x=mae['pog x'], 
+                y=mae['pog y'], 
+                yerr=mae['ae y'], 
+                fmt='o', color='#dd8452', 
+                alpha=1, capsize=5, capthick=2, elinewidth=2,
+                label='MAE y',)
+
+for stim_x, stim_y, pog_x, pog_y in zip(mae['stimulus position x'],mae['stimulus position y'], mae['pog x'], mae['pog y']):
+    plt.plot([stim_x, pog_x], [stim_y, pog_y], 'k-', linewidth=1) 
 
 
 axs1[0].set_xlim([-30,30])
