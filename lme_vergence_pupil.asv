@@ -43,7 +43,6 @@ fixed_effects = fixedEffects(lme_complex); % [Intercept; Slope]
 % Extract random effects
 [random_effects, names] = randomEffects(lme_complex); 
 
-disp(fixed_effects)
 disp(names)
 disp(random_effects)
 
@@ -123,11 +122,10 @@ disp(lme_simple_diam)
 
 %% display intercept and slopes
 % Extract fixed effects (overall intercept and slope)
-fixed_effects_diam = fixedEffects(lme_complex_diam); % [Intercept; Slope]
+fixed_effects = fixedEffects(lme_complex_diam); % [Intercept; Slope]
 
 % Extract random effects
-[random_effects_diam, names_diam] = randomEffects(lme_complex_diam); 
+[random_effects, names] = randomEffects(lme_complex_diam); 
 
-disp(fixed_effects_diam)
-disp(names_diam)
-disp(random_effects_diam)
+disp(names)
+disp(random_effects)

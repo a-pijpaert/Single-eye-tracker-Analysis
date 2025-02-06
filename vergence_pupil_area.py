@@ -148,27 +148,27 @@ s=sns_marker_size
 )
 
 # Get the fixed effect coefficients
-intercept = 5.0342
-slope = -9.3807e-05
+intercept = 5.29538964143865
+slope = -0.105442222443439
 
 # Generate x values for the regression line
 x_vals = np.linspace(df['average_pupil_diameter_mm'].min(), df['average_pupil_diameter_mm'].max(), 100)
 
 # from matlab:
 random_slopes = [
-    -4.6296e-05,
-    -0.0001,
-    -0.0002,
-    1.2834e-05,
-    0.0004,
+-0.0981213556631409
+-0.178134473394235
+-0.295272370314246
+0.0141548023371434
+0.557373397034479
 ]
 
 random_intercepts = [
-    0.0409,
-   -1.2509,
-    1.7701,
-    0.8633,
-   -1.4234,
+0.504627586639085
+-0.538458129276204
+2.80677927627584
+0.841303086409537
+-3.61425182004856
 ]
 
 for random_intercept, random_slope in zip(random_intercepts, random_slopes):
