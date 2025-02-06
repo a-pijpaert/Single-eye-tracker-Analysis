@@ -27,6 +27,8 @@ puil_scaling_factor = 0.007795903499999998 # scaling factor used to convert pupi
 
 mean_pupil_sizes = []
 mean_vergences = []
+mean_all_left_pog = []
+mean_all_right_pog = []
 for subject_ID in subject_IDs:
     # set parameters
     procedure = RecordingState.VERGENCE_PUPIL
@@ -43,9 +45,14 @@ for subject_ID in subject_IDs:
 
     stimulus_number = loaded_data['stimulus_number']
 
+    left_pog_deg = loaded_data['left_pog_degrees']
+    right_pog_deg = loaded_data['right_pog_degrees']
+
     # calculate mean Average Pupil Areas and vergences
     mean_pupil_size = []
     mean_vergence = []
+    mean_left_pog_deg = []
+    mean_right_pog_deg = []
     for stimulus in np.linspace(1, 5, 5):
         stimulus_indices = np.where(stimulus_number == stimulus)
 
@@ -57,8 +64,15 @@ for subject_ID in subject_IDs:
         mean_right_va = np.nanmean(right_visual_axis[stimulus_indices], axis=0)
         mean_vergence.append(np.degrees(np.arccos(np.dot(mean_left_va, mean_right_va))))
 
+        #calculate mean pog in degrees
+        mean_left_pog_deg.append(np.nanmean(left_pog_deg[stimulus_indices], axis=0))
+        mean_right_pog_deg.append(np.nanmean(right_pog_deg[stimulus_indices], axis=0))
+
     mean_pupil_sizes.append(mean_pupil_size)
     mean_vergences.append(mean_vergence)
+
+    mean_all_left_pog.append(mean_left_pog_deg)
+    mean_all_right_pog.append(mean_right_pog_deg)
 
     # plt.plot(mean_pupil_size, mean_vergence, label=f'{subject_ID}')
 
@@ -73,14 +87,37 @@ rows = []
 # Iterate over each subject and their corresponding data
 for i, subject in enumerate(subject_IDs):
     for j in range(5):  # Assuming there are 4 entries per subject
-        rows.append([subject, mean_pupil_sizes[i][j], mean_pupil_diam_mm[i][j], mean_vergences[i][j]])
+        rows.append([subject,
+        mean_pupil_sizes[i][j],
+        mean_pupil_diam_mm[i][j],
+        mean_vergences[i][j],
+        mean_all_left_pog[i][j][0],
+        mean_all_left_pog[i][j][1],
+        mean_all_right_pog[i][j][0],
+        mean_all_right_pog[i][j][1]])
 
 # Create a DataFrame with the collected rows and define column names
-df = pd.DataFrame(rows, columns=['subject_id', 'average_pupil_area', 'average_pupil_diameter_mm', 'measured_vergence'])
+df = pd.DataFrame(rows, columns=['subject_id',
+    'average_pupil_area',
+    'average_pupil_diameter_mm',
+    'measured_vergence',
+    'left_pog_x_deg',
+    'left_pog_y_deg',
+    'right_pog_x_deg',
+    'right_pog_y_deg'])
 
 # Drop rows with missing values
 df.dropna(inplace=True)
 
+
+# %% Compute Spearman correlation for each subject
+results = []
+for subject, group in df.groupby('subject_id'):
+    rho, p_value = spearmanr(group['measured_vergence'], group['average_pupil_area'])
+    results.append({'Subject': subject, 'Spearman_Rho': rho, 'P_Value': p_value})
+
+# Convert results to DataFrame
+results_df = pd.DataFrame(results)
 
 # %% plot model
 # Plot each subject with a unique marker and color
@@ -156,19 +193,19 @@ x_vals = np.linspace(df['average_pupil_diameter_mm'].min(), df['average_pupil_di
 
 # from matlab:
 random_slopes = [
--0.0981213556631409
--0.178134473394235
--0.295272370314246
-0.0141548023371434
-0.557373397034479
+    -0.0981213556631409,
+    -0.178134473394235,
+    -0.295272370314246,
+    0.0141548023371434,
+    0.557373397034479,
 ]
 
 random_intercepts = [
-0.504627586639085
--0.538458129276204
-2.80677927627584
-0.841303086409537
--3.61425182004856
+    0.504627586639085,
+    -0.538458129276204,
+    2.80677927627584,
+    0.841303086409537,
+    -3.61425182004856,
 ]
 
 for random_intercept, random_slope in zip(random_intercepts, random_slopes):
@@ -184,8 +221,84 @@ plt.plot(x_vals, y_vals, color='black', label='Regression', zorder=0)
 
 # Customizing the plot
 # rcParams.update({'font.size': 16})
-plt.xlabel(u'Average Pupil Area (pixels)')
+plt.xlabel(u'Average Pupil Diameter (mm)')
 plt.ylabel(r'$ \alpha_{measured} (\degree)$')
 plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
 plt.show()
 
+
+# %% Analysis pupil size on gaze
+X = df[['left_pog_x_deg', 'left_pog_y_deg', 'right_pog_x_deg', 'right_pog_y_deg']]
+y = df['average_pupil_area']
+
+# Add a constant (intercept) to the independent variables
+X_sm = sm.add_constant(X)  # Adds a column of ones for the intercept
+
+# Fit Ordinary Least Squares (OLS) regression
+model = sm.OLS(y, X_sm).fit()
+
+# Print the regression summary (R², p-values, etc.)
+print(model.summary())
+
+# Create subplots (2 rows, 2 columns)
+fig, axs = plt.subplots(2, 2, figsize=(14, 12))
+
+# Scatter plot for left_pog_x_deg vs average_pupil_area
+sns.regplot(y='left_pog_x_deg', x='average_pupil_area', data=df, scatter_kws={'s': 100, 'alpha': 0.5}, line_kws={'color': 'red'}, ax=axs[0, 0])
+axs[0, 0].set_title('Left Gaze X-Position vs Average Pupil Area')
+axs[0, 0].set_ylabel('Left POG X (degrees)')
+axs[0, 0].set_xlabel('Average Pupil Area (pixels)')
+
+# Scatter plot for left_pog_y_deg vs average_pupil_area
+sns.regplot(y='left_pog_y_deg', x='average_pupil_area', data=df, scatter_kws={'s': 100, 'alpha': 0.5}, line_kws={'color': 'red'}, ax=axs[0, 1])
+axs[0, 1].set_title('Left Gaze Y-Position vs Average Pupil Area')
+axs[0, 1].set_ylabel('Left POG Y (degrees)')
+axs[0, 1].set_xlabel('Average Pupil Area (pixels)')
+
+# Scatter plot for right_pog_x_deg vs average_pupil_area
+sns.regplot(y='right_pog_x_deg', x='average_pupil_area', data=df, scatter_kws={'s': 100, 'alpha': 0.5}, line_kws={'color': 'red'}, ax=axs[1, 0])
+axs[1, 0].set_title('Right Gaze X-Position vs Average Pupil Area')
+axs[1, 0].set_ylabel('Right POG X (degrees)')
+axs[1, 0].set_xlabel('Average Pupil Area (pixels)')
+
+# Scatter plot for right_pog_y_deg vs average_pupil_area
+sns.regplot(y='right_pog_y_deg', x='average_pupil_area', data=df, scatter_kws={'s': 100, 'alpha': 0.5}, line_kws={'color': 'red'}, ax=axs[1, 1])
+axs[1, 1].set_title('Right Gaze Y-Position vs Average Pupil Area')
+axs[1, 1].set_ylabel('Right POG Y (degrees)')
+axs[1, 1].set_xlabel('Average Pupil Area (pixels)')
+
+# Adjust layout
+plt.tight_layout()
+plt.show()
+
+
+# Create subplots (2 rows, 2 columns)
+fig, axs = plt.subplots(2, 2, figsize=(14, 12))
+
+# Residuals plot for left_pog_x_deg
+sns.residplot(x='left_pog_x_deg', y='average_pupil_area', data=df, lowess=True, line_kws={'color': 'red'}, ax=axs[0, 0])
+axs[0, 0].set_title('Residuals of Left Gaze X-Position vs Average Pupil Area')
+axs[0, 0].set_xlabel('Left POG X (degrees)')
+axs[0, 0].set_ylabel('Residuals')
+
+# Residuals plot for left_pog_y_deg
+sns.residplot(x='left_pog_y_deg', y='average_pupil_area', data=df, lowess=True, line_kws={'color': 'red'}, ax=axs[0, 1])
+axs[0, 1].set_title('Residuals of Left Gaze Y-Position vs Average Pupil Area')
+axs[0, 1].set_xlabel('Left POG Y (degrees)')
+axs[0, 1].set_ylabel('Residuals')
+
+# Residuals plot for right_pog_x_deg
+sns.residplot(x='right_pog_x_deg', y='average_pupil_area', data=df, lowess=True, line_kws={'color': 'red'}, ax=axs[1, 0])
+axs[1, 0].set_title('Residuals of Right Gaze X-Position vs Average Pupil Area')
+axs[1, 0].set_xlabel('Right POG X (degrees)')
+axs[1, 0].set_ylabel('Residuals')
+
+# Residuals plot for right_pog_y_deg
+sns.residplot(x='right_pog_y_deg', y='average_pupil_area', data=df, lowess=True, line_kws={'color': 'red'}, ax=axs[1, 1])
+axs[1, 1].set_title('Residuals of Right Gaze Y-Position vs Average Pupil Area')
+axs[1, 1].set_xlabel('Right POG Y (degrees)')
+axs[1, 1].set_ylabel('Residuals')
+
+# Adjust layout
+plt.tight_layout()
+plt.show()
