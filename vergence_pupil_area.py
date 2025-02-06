@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import seaborn as sns
 from scipy.stats import pearsonr, spearmanr, chi2
+import scipy
 import statsmodels.formula.api as smf
 import statsmodels.api as sm
 from __plot_params import *
@@ -226,6 +227,62 @@ plt.ylabel(r'$ \alpha_{measured} (\degree)$')
 plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
 plt.show()
 
+# %% plot model
+# Plot each subject with a unique marker and color
+figure, axs = plt.subplots(2, 2, figsize=figure_size)
+axs = axs.flatten()
+gaze_components = ['left_pog_x_deg', 'left_pog_y_deg', 'right_pog_x_deg', 'right_pog_y_deg']
+fixed_intercepts = [-0.17279, -2.2958, 0.76366, -1.4125]
+fixed_slopes = [7.2615e-05, 0.00051295, -0.00019947, 9.4734e-05]
+random_intercepts = [[-0.36313, 0.81475, -0.81381, -0.28824, 0.65042],
+            [0.3421, -0.58601, 0.43272, -0.1084, -0.080402],
+            [0.50474, 0.18892, -0.098503, 0.0046856, -0.59985],
+            [0.20467, 0.34334, 0.7907, -0.42743, -0.91128]]
+random_slopes = [[-3.9534e-06, 8.8704e-06, -8.8601e-06, -3.1381e-06, 7.0813e-06],
+            [3.7342e-05, -6.3966e-05, 4.7234e-05, -1.1833e-05, -8.7764e-06],
+            [-0.00025015, -9.3631e-05, 4.8818e-05, -2.3222e-06, 0.00029729],
+            [2.1928e-06, 3.6785e-06, 8.4716e-06, -4.5795e-06, -9.7635e-06]]
+
+for index, gaze_comp in enumerate(gaze_components):
+    sns.scatterplot(x='average_pupil_area',
+    y=gaze_comp,
+    data=df,
+    hue='subject_id',
+    style='subject_id',
+    s=sns_marker_size,
+    ax=axs[index]
+    )
+
+    # Get the fixed effect coefficients
+    intercept = fixed_intercepts[index]
+    slope = fixed_slopes[index]
+
+    # Generate x values for the regression line
+    x_vals = np.linspace(df['average_pupil_area'].min(), df['average_pupil_area'].max(), 100)
+
+    # from matlab:
+    slopes = random_slopes[index]
+    intercepts = random_intercepts[index]
+
+    for random_intercept, random_slope in zip(intercepts, slopes):
+        y_vals = (intercept + random_intercept) + (slope + random_slope) * x_vals
+        axs[index].plot(x_vals, y_vals, zorder=0)
+
+    # Compute the predicted y values
+    y_vals = intercept + slope * x_vals
+
+    axs[index].plot(x_vals, y_vals, color='black', label='Regression', zorder=0)
+
+
+
+    # Customizing the plot
+    # rcParams.update({'font.size': 16})
+    axs[index].set_xlabel(u'Average Pupil Area (pixels)')
+    axs[index].set_ylabel(f'{gaze_comp} $(\degree)$')
+    axs[index].legend(loc='upper left', bbox_to_anchor=(1, 1))
+    axs[index].get_legend().remove()
+plt.tight_layout()
+plt.show()
 
 # %% Analysis pupil size on gaze
 X = df[['left_pog_x_deg', 'left_pog_y_deg', 'right_pog_x_deg', 'right_pog_y_deg']]
@@ -302,3 +359,13 @@ axs[1, 1].set_ylabel('Residuals')
 # Adjust layout
 plt.tight_layout()
 plt.show()
+
+
+# %% Save data
+# import scipy
+# Convert DataFrame to a dictionary
+data_dict = {col: df[col].values for col in df.columns}
+
+# Save to a .mat file
+scipy.io.savemat('data_vergence_pupil.mat', data_dict)
+# %%
