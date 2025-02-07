@@ -213,3 +213,88 @@ plt.legend(loc='lower right', fontsize=10) #, bbox_to_anchor=(1, 1))
 plt.tight_layout()
 plt.show()
 # %%
+# Plotting the regression line after corrected data for subject intercepts
+# Get the fixed effect coefficients
+intercept = -0.24576 # from matlab, from python: result.fe_params['Intercept']
+slope = 0.98546 # from matlab, from python: result.fe_params['target_vergence']
+
+# Generate x values for the regression line
+x_vals = np.linspace(data['target_vergence'].min(), data['target_vergence'].max(), 100)
+
+# from matlab:
+random_effects = [
+   -0.4007,
+   -0.4593,
+    0.3440,
+    0.1679,
+    0.3481,
+]
+
+for random_intercept in random_effects:
+    y_vals = (intercept + random_intercept) + slope * x_vals
+    plt.plot(x_vals, y_vals, zorder=0)
+
+# Compute the predicted y values
+y_vals = intercept + slope * x_vals
+
+plt.plot(x_vals, y_vals, color='black', label='Marginal Mean', zorder=0)
+
+# Plotting the identity line (y = x)
+plt.plot(x_vals, x_vals, color='gray', linestyle='--', label='Identity', zorder=0)
+
+ax = plt.gca()
+ax.set_aspect('equal')
+ax.set_xlim([4, 10])
+ax.set_ylim([2, 10])
+
+# Customizing the plot
+rcParams.update({'font.size': 16})
+plt.xlabel(u'Target Vergence (\N{DEGREE SIGN})')
+plt.ylabel(u'Measured Vergence (\N{DEGREE SIGN})')
+plt.legend(loc='lower right', fontsize=10) #, bbox_to_anchor=(1, 1))
+plt.tight_layout()
+plt.show()
+# %%
+# # %% plot model using pupil diameter TEST
+# # Plot each subject with a unique marker and color
+# plt.figure(figsize=figure_size)
+# sns.scatterplot(x='target_vergence',
+# y='measured_vergence',
+# data=data,
+# hue='subject_id',
+# style='subject_id',
+# s=sns_marker_size
+# )
+
+# # Get the fixed effect coefficients
+# intercept = -0.2347
+# slope = 0.9818
+
+# # Generate x values for the regression line
+# x_vals = np.linspace(data['target_vergence'].min(), data['target_vergence'].max(), 100)
+
+# # from matlab:
+# random_slopes = [
+#    -0.0703,
+#    -0.0884,
+#     0.0643,
+#     0.0287,
+#     0.0658,
+# ]
+
+# random_intercepts = [
+#    -0.4662,
+#    -0.5859,
+#     0.4262,
+#     0.1901,
+#     0.4359,
+# ]
+
+# for random_intercept, random_slope in zip(random_intercepts, random_slopes):
+#     y_vals = (intercept + random_intercept) + (slope + random_slope) * x_vals
+#     plt.plot(x_vals, y_vals, zorder=0)
+
+# # Compute the predicted y values
+# y_vals = intercept + slope * x_vals
+
+# plt.plot(x_vals, y_vals, color='black', label='Regression', zorder=0)

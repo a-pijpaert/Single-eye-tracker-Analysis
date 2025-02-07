@@ -252,6 +252,8 @@ for index, gaze_comp in enumerate(gaze_components):
     s=sns_marker_size,
     ax=axs[index]
     )
+    # get gaze component name string parts
+    comp_parts = gaze_comp.split("_")
 
     # Get the fixed effect coefficients
     intercept = fixed_intercepts[index]
@@ -278,7 +280,7 @@ for index, gaze_comp in enumerate(gaze_components):
     # Customizing the plot
     # rcParams.update({'font.size': 16})
     axs[index].set_xlabel(u'Average Pupil Area (pixels)')
-    axs[index].set_ylabel(f'{gaze_comp} $(\degree)$')
+    axs[index].set_ylabel(f'{comp_parts[0]} {comp_parts[1]} {comp_parts[2]} $(\degree)$')
     axs[index].legend(loc='upper left', bbox_to_anchor=(1, 1))
     axs[index].get_legend().remove()
 plt.tight_layout()
