@@ -1077,7 +1077,7 @@ axs1[0].set_ylabel('Vertical POG ($^\circ$)')
 axs1[0].set_xlabel('Horizontal POG ($^\circ$)')
 
 axs1[1].set_xlim([-30,30])
-axs1[1].set_ylim([-25,25])
+axs1[1].set_ylim([-30,30])
 axs1[1].invert_xaxis()
 axs1[1].invert_yaxis()
 axs1[1].set_aspect('equal')

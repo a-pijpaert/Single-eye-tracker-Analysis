@@ -122,7 +122,7 @@ results_df = pd.DataFrame(results)
 
 # %% plot model
 # Plot each subject with a unique marker and color
-plt.figure(figsize=figure_size)
+plt.figure(figsize=(5,6))
 sns.scatterplot(x='average_pupil_area',
 y='measured_vergence',
 data=df,
@@ -164,12 +164,10 @@ y_vals = intercept + slope * x_vals
 
 plt.plot(x_vals, y_vals, color='black', label='Regression', zorder=0)
 
-
-
 # Customizing the plot
 # rcParams.update({'font.size': 16})
 plt.xlabel(u'Average Pupil Area (pixels)')
-plt.ylabel(r'$ \alpha_{measured} (\degree)$')
+plt.ylabel(r'Measured Vergence $(\degree)$')
 plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
 plt.show()
 
